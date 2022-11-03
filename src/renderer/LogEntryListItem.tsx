@@ -1,17 +1,18 @@
 import { LogEntry } from 'model/LogEntry';
 import classNames from 'classnames';
+import { LogFile } from '../model/LogFile';
 
 export interface LogEntryListItemProps {
-  log: LogEntry;
+  file: LogFile
   selected: boolean;
   onClick: () => void;
 }
 export function LogEntryListItem({
-  log,
+  file,
   onClick,
   selected,
 }: LogEntryListItemProps) {
-  const { path } = log;
+  const { fileName, date } = file;
   return (
     <div
       className={classNames('list-group-item list-group-item-action', {
@@ -19,7 +20,9 @@ export function LogEntryListItem({
       })}
       onClick={onClick}
     >
-      {path}
+      <div>{fileName}</div>
+      <div>{date.toDateString()}</div>
+
     </div>
   );
 }

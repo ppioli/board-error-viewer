@@ -4,16 +4,18 @@ import { Board } from 'model/Board';
 import { BoardViewer } from 'renderer/BoardViewer';
 import { LogEntry } from 'model/LogEntry';
 import { LogEntryListItem } from 'renderer/LogEntryListItem';
+import { LogFileParseResult } from '../model/LogFileParseResult';
+import { LogFile } from '../model/LogFile';
 
 export function AnalysisPage() {
   const { path } = useParams();
   const [board, setBoard] = useState<Board | null>(null);
-  const [logs, setLogs] = useState<LogEntry[]>([]);
+  const [logs, setLogs] = useState<LogFile[]>([]);
   const [selected, setSelected] = useState(0);
   const directory = '/home/ppioli/temp/testBoard';
   useEffect(() => {
     window.electron.fileApi.watchStart(directory);
-    window.electron.fileApi.onReportPickup((event: any, log: any) => {
+    window.electron.fileApi.onReportPickup((event: any, log: LogFile) => {
       setLogs((current) => [...current, log]);
     });
     return () => window.electron.fileApi.watchEnd();
@@ -56,10 +58,10 @@ export function AnalysisPage() {
                 </div>
               </div>
             )}
-            {logs.map((log, ix) => (
+            {logs.map((file, ix) => (
               <LogEntryListItem
-                log={log}
-                key={log.path}
+                file={file}
+                key={file.fileName}
                 onClick={() => handleSelect(ix)}
                 selected={selected === ix}
               />
