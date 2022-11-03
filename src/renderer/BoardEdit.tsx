@@ -1,10 +1,10 @@
-import { FormProvider, useForm } from 'react-hook-form';
+import { FormProvider, useForm, useFormContext } from 'react-hook-form';
 import { array, number, object, SchemaOf, string } from 'yup';
-import { Board, Component, defaultBoard, Layer, Vector } from '../model/Board';
+import { Board, Component, Layer, Vector } from '../model/Board';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { LayerEdit } from './LayerEdit';
 import { BoardViewer } from './BoardViewer';
-import { useState } from 'react';
+import classNames from 'classnames';
 
 const vectorSchema: SchemaOf<Vector> = object().shape({
   x: number().required(),
@@ -28,40 +28,80 @@ const boardSchema: SchemaOf<Board> = object().shape({
   layerBottom: layerSchema.nullable(),
   name: string().required(),
 });
+export interface BoardEditProps {
+  board: Board;
+  path?: string;
+}
 
-export function BoardEdit() {
+export function BoardEdit({ board, path }: BoardEditProps) {
   const formMethods = useForm<Board>({
-    defaultValues: defaultBoard,
+    defaultValues: board,
     resolver: yupResolver(boardSchema),
+    reValidateMode: 'onChange',
   });
 
-  const [board, setBoard] = useState(defaultBoard)
-
-  const { register, handleSubmit, formState} = formMethods;
-  const onSubmit = (board: Board) => setBoard(board);
-  const {errors} = formState;
-  return <div className={"row"}>
-    <div className={"col-6"}>
+  const { register, handleSubmit, formState } = formMethods;
+  const onSubmit = (board: Board) => {
+    console.log('submitted');
+    window.electron.fileApi.boardSave(board);
+  };
+  const { errors } = formState;
+  return (
     <FormProvider {...formMethods}>
-      <div style={{ width: '100%' }}>
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <h1>Edit board</h1>
-          <h2>Name</h2>
-          <input type={'text'} {...register('name')} />
-          <h2>Top Layer</h2>
-          <LayerEdit name={'layerTop'} />
-          <button className={'btn btn-primary'} type={'submit'}>
-            Save
-          </button>
-          <button className={'btn btn-primary'} type={'button'} onClick={() => console.log(errors)}>
-            Errors
-          </button>
-        </form>
+      <div className={'row'}>
+        <div className={'col-6'}>
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <div className={'card'}>
+              <div className={'card-header h4'}>Edit board</div>
+              <div className={'card-body'}>
+                <div style={{ width: '100%' }}>
+                  <div className={'row'}>
+                    <div className={'col-12'}></div>
+                    <div className={'col-12 form-group'}>
+                      <label>Name</label>
+                      <input
+                        type={'text'}
+                        {...register('name')}
+                        className={'form-control'}
+                      />
+                    </div>
+                  </div>
+                  <hr />
+                  <h4>Top layer</h4>
+                  <LayerEdit name={'layerTop'} />
+                </div>
+              </div>
+              <div className="card-footer flex-row-reverse flex">
+                <button className={'btn btn-primary'} type={'submit'}>
+                  Save...
+                </button>
+                <button
+                  className={classNames('btn btn-primary', {
+                    'd-none': path,
+                  })}
+                  type={'submit'}
+                >
+                  Save As...
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div className={'col-6'}>
+          <BoardPreview />
+        </div>
       </div>
     </FormProvider>
-    </div>
-    <div className={"col-6"}>
-      <BoardViewer board={board}/>
-    </div>
-  </div>;
+  );
+}
+
+function BoardPreview() {
+  const {
+    formState: { isValid },
+    watch,
+  } = useFormContext();
+
+  const board = watch();
+
+  return <BoardViewer board={board as Board} />;
 }

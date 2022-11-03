@@ -1,39 +1,56 @@
-import { useEffect } from 'react';
+import { ChangeEvent, useEffect, useRef } from 'react';
 
-import { MemoryRouter as Router, Route, Routes } from 'react-router-dom';
-// import './App.css';
-import "bootstrap/scss/bootstrap.scss"
-import { Board } from '../ipc/fileApi';
-import { BoardEdit } from './BoardEdit';
-import IpcMainEvent = Electron.IpcMainEvent;
+import {
+  Link,
+  MemoryRouter as Router,
+  Route,
+  Routes,
+  useNavigate,
+} from 'react-router-dom';
+import 'bootswatch/dist/slate/bootstrap.min.css'; // Added this :boom:
+import { BoardEditPage } from 'renderer/BoardEditPage';
+import { AnalysisPage } from 'renderer/AnalysisPage';
 
-const Hello = () => {
-  useEffect(() => {
-    console.log('Test');
-    window.electron.fileApi.onBoardOpen(
-      (_event: IpcMainEvent, board: Board) => {
-        console.log('value');
-        console.log(board);
-      }
-    );
-
-    window.electron.fileApi.onReportPickup((event: any, board: any) => {
-      console.log(board);
-    });
-  }, []);
+const Home = () => {
+  const ref = useRef<HTMLInputElement | null>(null);
+  const navigate = useNavigate();
+  const onFilePicked = (evt: ChangeEvent<HTMLInputElement>) => {
+    const files = evt.target.files;
+    if (!files || files.length == 0) {
+      return;
+    }
+    navigate('/analysis/' + encodeURIComponent(files[0].path));
+    evt.target.value = '';
+  };
   return (
     <div>
-      <BoardEdit />
+      <button
+        className={'btn btn-primary'}
+        onClick={() => ref.current!.click()}
+      >
+        Open
+      </button>
+      <Link to={'/edit/create'}>Create</Link>
+      <input
+        type={'file'}
+        className={'d-none'}
+        onChange={onFilePicked}
+        ref={ref}
+      />
     </div>
   );
 };
 
 export default function App() {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Hello />} />
-      </Routes>
-    </Router>
+    <div className={'container'}>
+      <Router>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/edit/:path" element={<BoardEditPage />} />
+          <Route path={'/analysis/:path'} element={<AnalysisPage />} />
+        </Routes>
+      </Router>
+    </div>
   );
 }
