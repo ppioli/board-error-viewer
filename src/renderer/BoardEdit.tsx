@@ -1,6 +1,6 @@
 import { FormProvider, useForm, useFormContext } from 'react-hook-form';
 import { array, number, object, SchemaOf, string } from 'yup';
-import { Board, Component, Layer, Vector } from '../model/Board';
+import { Board, Component, Image, Layer, Vector } from '../model/Board';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { LayerEdit } from './LayerEdit';
 import { BoardViewer } from './BoardViewer';
@@ -15,10 +15,15 @@ const componentSchema: SchemaOf<Component> = object().shape({
   position: vectorSchema,
   id: string().required(),
 });
+const imageSchema: SchemaOf<Image> = object().shape({
+  width: number().required(),
+  height: number().required(),
+  data: string().required(),
+});
 
 const layerSchema: SchemaOf<Layer> = object().shape({
   components: array().of(componentSchema),
-  image: string().required(),
+  image: imageSchema.nullable(),
   offset: vectorSchema,
   scale: vectorSchema,
 });
@@ -28,6 +33,7 @@ const boardSchema: SchemaOf<Board> = object().shape({
   layerBottom: layerSchema.nullable(),
   name: string().required(),
 });
+
 export interface BoardEditProps {
   board: Board;
   path?: string;
@@ -51,7 +57,7 @@ export function BoardEdit({ board, path }: BoardEditProps) {
       <div className={'row'}>
         <div className={'col-6'}>
           <form onSubmit={handleSubmit(onSubmit)}>
-            <div className={'card'}>
+            <div className={'card vh-100'}>
               <div className={'card-header h4'}>Edit board</div>
               <div className={'card-body'}>
                 <div style={{ width: '100%' }}>
@@ -102,6 +108,16 @@ function BoardPreview() {
   } = useFormContext();
 
   const board = watch();
-
-  return <BoardViewer board={board as Board} />;
+  const { layerTop, layerBottom } = board ?? {};
+  console.log(layerTop);
+  return (
+    <div className={'vh-100'}>
+      <div className={'h-50'}>
+        {layerTop ? <BoardViewer title={'Layer top'} layer={layerTop} /> : <div>...</div>}
+      </div>
+      <div className={'h-50'}>
+        {layerBottom ? <BoardViewer title={'Layer bottom'} layer={layerTop} /> : <div>...</div>}
+      </div>
+    </div>
+  );
 }

@@ -1,13 +1,17 @@
-
-
 export interface Board {
   name: string;
   layerTop: Layer;
   layerBottom: Layer | null;
 }
 
+export interface Image {
+  width: number;
+  height: number;
+  data: string;
+}
+
 export interface Layer {
-  image: string;
+  image: Image|null;
   offset: Vector;
   scale: Vector;
   components: Component[];
@@ -29,8 +33,8 @@ export const defaultBoard: Board = {
   name: "",
   layerTop: {
     components: [],
-    image: "",
-    scale: defaultVector,
+    image: null,
+    scale: {x:1, y: 1},
     offset: defaultVector,
   },
   layerBottom: null,

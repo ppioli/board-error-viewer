@@ -1,5 +1,6 @@
 import { ChangeEvent, useRef } from 'react';
 import { useController, useFormContext } from 'react-hook-form';
+import { Image as IImage } from '../model/Board';
 
 export interface ImageSelectorProps {
   name: string;
@@ -22,7 +23,17 @@ export function ImageSelector({ name }: ImageSelectorProps) {
     const file = files[0];
     const reader = new FileReader();
     reader.onloadend = () => {
-      onChange(reader.result);
+      const img = new Image();
+      img.onload = () => {
+        const result: IImage = {
+          width: img.width,
+          height: img.height,
+          data: reader.result!.toString(),
+        }
+        console.log(result);
+        onChange(result);
+      }
+      img.src = reader.result!.toString();
     };
     reader.readAsDataURL(file);
   };

@@ -43,7 +43,7 @@ const Home = () => {
 
 export default function App() {
   return (
-    <div className={'container'}>
+    <div className={'container-fluid'}>
       <Router>
         <Routes>
           <Route path="/" element={<Home />} />
