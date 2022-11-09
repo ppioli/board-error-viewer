@@ -11,7 +11,7 @@ export interface Image {
 }
 
 export interface Layer {
-  image: Image|null;
+  image: Image | null;
   offset: Vector;
   scale: Vector;
   components: Component[];
@@ -27,20 +27,20 @@ export interface Vector {
   y: number;
 }
 
-export const defaultVector: Vector = { x: 0, y: 0}
-
+export const defaultVector: Vector = { x: 0, y: 0 };
+export const defaultLayer: Layer = {
+  components: [],
+  image: null,
+  scale: { x: 1, y: 1 },
+  offset: defaultVector,
+};
 export const defaultBoard: Board = {
-  name: "",
-  layerTop: {
-    components: [],
-    image: null,
-    scale: {x:1, y: 1},
-    offset: defaultVector,
-  },
+  name: '',
   layerBottom: null,
-}
+  layerTop: defaultLayer,
+};
 
 export const defaultComponent: Component = {
   position: defaultVector,
-  id: ""
-}
+  id: '',
+};

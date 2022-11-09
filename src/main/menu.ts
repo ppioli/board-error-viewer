@@ -6,7 +6,6 @@ import {
   MenuItemConstructorOptions,
 } from 'electron';
 import WebContents = Electron.WebContents;
-import { fileApiHandler } from '../ipc/fileApi';
 
 interface DarwinMenuItemConstructorOptions extends MenuItemConstructorOptions {
   selector?: string;
@@ -204,9 +203,6 @@ export default class MenuBuilder {
             accelerator: 'Ctrl+O',
             click: () => {
               console.log('Board called');
-              fileApiHandler.boardOpen({
-                content: 'Test',
-              });
             },
           },
           {

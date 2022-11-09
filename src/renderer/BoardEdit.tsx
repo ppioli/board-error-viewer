@@ -3,8 +3,11 @@ import { array, number, object, SchemaOf, string } from 'yup';
 import { Board, Component, Image, Layer, Vector } from '../model/Board';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { LayerEdit } from './LayerEdit';
-import { BoardViewer } from './BoardViewer';
 import classNames from 'classnames';
+import { useState } from 'react';
+import { BoardViewer } from 'renderer/BoardViewer';
+import { LayerToggle } from 'renderer/LayerToggle';
+import { useNavigate } from 'react-router-dom';
 
 const vectorSchema: SchemaOf<Vector> = object().shape({
   x: number().required(),
@@ -39,17 +42,27 @@ export interface BoardEditProps {
   path?: string;
 }
 
+type SelectedLayer = 'Top' | 'Bottom';
+
 export function BoardEdit({ board, path }: BoardEditProps) {
+  const navigate = useNavigate();
   const formMethods = useForm<Board>({
     defaultValues: board,
     resolver: yupResolver(boardSchema),
     reValidateMode: 'onChange',
   });
-
+  const [selectedTab, setSelectedTab] = useState<SelectedLayer>('Top');
   const { register, handleSubmit, formState } = formMethods;
+
   const onSubmit = (board: Board) => {
     console.log('submitted');
-    window.electron.fileApi.boardSave(board);
+    window.electron.fileApi.boardSave(board).then(({ result: path, error }) => {
+      if (error) {
+        window.alert('Error ' + error);
+      } else {
+        navigate('/analysis/' + encodeURIComponent(path!));
+      }
+    });
   };
   const { errors } = formState;
   return (
@@ -57,13 +70,12 @@ export function BoardEdit({ board, path }: BoardEditProps) {
       <div className={'row'}>
         <div className={'col-6'}>
           <form onSubmit={handleSubmit(onSubmit)}>
-            <div className={'card vh-100'}>
+            <div className={'card vh-100 '}>
               <div className={'card-header h4'}>Edit board</div>
-              <div className={'card-body'}>
+              <div className={'card-body'} style={{ overflowY: 'scroll' }}>
                 <div style={{ width: '100%' }}>
-                  <div className={'row'}>
-                    <div className={'col-12'}></div>
-                    <div className={'col-12 form-group'}>
+                  <div className={'row g-3'}>
+                    <div className={'col-12'}>
                       <label>Name</label>
                       <input
                         type={'text'}
@@ -71,10 +83,42 @@ export function BoardEdit({ board, path }: BoardEditProps) {
                         className={'form-control'}
                       />
                     </div>
+                    <div className={'col-12'}>
+                      <ul className="nav nav-tabs">
+                        <li className="nav-item">
+                          <a
+                            className={classNames('nav-link', {
+                              active: selectedTab === 'Top',
+                            })}
+                            aria-current="page"
+                            href="#"
+                            onClick={() => setSelectedTab('Top')}
+                          >
+                            Top
+                          </a>
+                        </li>
+                        <li className="nav-item">
+                          <a
+                            className={classNames('nav-link', {
+                              active: selectedTab === 'Bottom',
+                            })}
+                            aria-current="page"
+                            href="#"
+                            onClick={() => setSelectedTab('Bottom')}
+                          >
+                            Bottom
+                          </a>
+                        </li>
+                      </ul>
+                    </div>
+                    {selectedTab === 'Top' ? (
+                      <LayerEdit name={'layerTop'} />
+                    ) : (
+                      <>
+                        <LayerToggle name={'layerBottom'} />
+                      </>
+                    )}
                   </div>
-                  <hr />
-                  <h4>Top layer</h4>
-                  <LayerEdit name={'layerTop'} />
                 </div>
               </div>
               <div className="card-footer flex-row-reverse flex">
@@ -113,10 +157,18 @@ function BoardPreview() {
   return (
     <div className={'vh-100'}>
       <div className={'h-50'}>
-        {layerTop ? <BoardViewer title={'Layer top'} layer={layerTop} /> : <div>...</div>}
+        {layerTop ? (
+          <BoardViewer title={'Layer top'} layer={layerTop} />
+        ) : (
+          <div>...</div>
+        )}
       </div>
       <div className={'h-50'}>
-        {layerBottom ? <BoardViewer title={'Layer bottom'} layer={layerTop} /> : <div>...</div>}
+        {layerBottom ? (
+          <BoardViewer title={'Layer bottom'} layer={layerBottom} />
+        ) : (
+          <div>...</div>
+        )}
       </div>
     </div>
   );

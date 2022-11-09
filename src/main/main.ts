@@ -14,10 +14,8 @@ import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
-import { testApiHandler } from '../ipc/testApi';
-import IpcMainEvent = Electron.IpcMainEvent;
-import { fileApiHandler } from '../ipc/fileApi';
-import { fileWatcherMain } from './fileApi';
+import { registerFileApi } from '../main/registerFileApi';
+import { registerConfigApi } from '../main/registerConfigApi';
 
 class AppUpdater {
   constructor() {
@@ -99,18 +97,19 @@ const createWindow = async () => {
   const menuBuilder = new MenuBuilder(mainWindow);
   menuBuilder.buildMenu();
   ipcMain.on('counter-value', (_event, value) => {
-    console.log(value) // will print value to Node console
-  })
-  console.log("Starting")
+    console.log(value); // will print value to Node console
+  });
+  console.log('Starting');
   // Open urls in the user's browser
   mainWindow.webContents.setWindowOpenHandler((edata) => {
     shell.openExternal(edata.url);
     return { action: 'deny' };
   });
-  testApiHandler.register(mainWindow);
-  fileApiHandler.register(mainWindow);
-  fileWatcherMain.register(mainWindow);
+
+  registerFileApi(mainWindow);
+  registerConfigApi(mainWindow);
   // Remove this if your app does not use auto updates
+
   // eslint-disable-next-line
   new AppUpdater();
 };

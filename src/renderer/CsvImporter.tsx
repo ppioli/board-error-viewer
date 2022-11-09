@@ -12,7 +12,6 @@ export function CsvImporter({ onLoad }: CsvImporterProps) {
       return;
     }
     const fileReader = new FileReader();
-    console.log('done');
     fileReader.onload = () => {
       // process loaded file
       debugger;
@@ -44,7 +43,7 @@ export function CsvImporter({ onLoad }: CsvImporterProps) {
   return (
     <>
       <button
-        className={'btn btn-secondary'}
+        className={'btn btn-link p-0'}
         type={'button'}
         onClick={() => csvFileRef.current?.click()}
       >

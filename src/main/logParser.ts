@@ -7,10 +7,13 @@ const lineDefinition: LineDefinition = [
   { start: 133, width: 141 },
   { start: 144, width: 152 },
 ];
-
+function splitLines(data: string) {
+  return data.split('\n').filter((l) => l.length > 0);
+}
 export function parseLog(data: string) {
   const [, header, body] = data.split('@');
-  const headerLines = (header ?? '').split('\n');
+  const headerLines = splitLines(header ?? '');
+  console.log(headerLines);
   if (headerLines.length !== 4) {
     throw new Error('The header has the wrong format');
   }
@@ -22,7 +25,7 @@ export function parseLog(data: string) {
     errors: [],
   };
 
-  const bodyLines = body.split('\n');
+  const bodyLines = splitLines(body);
   const parser = new LineSplitter(bodyLines, lineDefinition);
 
   while (parser.hasNext()) {
@@ -54,7 +57,7 @@ export class LineSplitter {
   }
 
   hasNext() {
-    return this.currentLine.trim() === '@';
+    return this.ix + 1 < this.lines.length;
   }
 
   parseNext() {
