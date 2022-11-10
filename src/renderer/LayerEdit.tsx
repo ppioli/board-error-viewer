@@ -2,25 +2,14 @@ import { useFieldArray, useFormContext } from 'react-hook-form';
 import { Component, defaultComponent } from '../model/Board';
 import { ImageSelector } from 'renderer/ImageSelector';
 import { CsvImporter } from 'renderer/CsvImporter';
+import { ComponentTable } from './ComponentTable';
 
 export interface LayerEditProps {
   name: string;
 }
-
 export function LayerEdit({ name }: LayerEditProps) {
-  const { control, register, setValue } = useFormContext();
-  const { fields, append, prepend, remove, swap, move, insert } = useFieldArray(
-    {
-      control, // control props comes from useForm (optional: if you are using FormContext)
-      name: `${name}.components`, // unique name for your Field Array
-      keyName: 'fieldId',
-    }
-  );
-  const onCvsImported = (components: Component[]) => {
-    append(components);
-    console.log(components);
-  };
 
+  const { control, register, setValue } = useFormContext();
   return (
     <>
       <ImageSelector name={`${name}.image`} />
@@ -56,84 +45,7 @@ export function LayerEdit({ name }: LayerEditProps) {
           {...register(`${name}.scale.y`, { valueAsNumber: true })}
         />
       </div>
-      <div className={'col-12'}>
-        <div
-          className={'d-flex justify-content-between align-items-baseline mb-1'}
-        >
-          <div className={'h5 mb-0'}>Components</div>
-          <CsvImporter onLoad={onCvsImported} />
-        </div>
-        <div className={'list-group'}>
-          <div className={'list-group-item p-0'}>
-            <div className={'d-flex justify-content-evenly'}>
-              <div className={'text-center border-1 border-light flex-fill'}>
-                Id
-              </div>
-              <div className={'text-center border-1 border-light flex-fill'}>
-                X
-              </div>
-              <div className={'text-center border-1 border-light flex-fill'}>
-                Y
-              </div>
-              <div
-                className={'text-center border-1 border-light'}
-                style={{ width: 32 }}
-              >
-                ...
-              </div>
-            </div>
-          </div>
-          {fields.length == 0 && (
-            <div className={'list-group-item py-4 px-2 text-center'}>
-              Empty list
-            </div>
-          )}
-          {fields.length > 0 &&
-            fields.map((field, index) => (
-              <div key={field.fieldId} className={'list-group-item p-0'}>
-                <div className={'d-flex justify-content-evenly'}>
-                  <div className={'text-center border-1 border-light'}>
-                    <input
-                      {...register(`${name}.components.${index}.id`)}
-                      className={'form-control'}
-                    />
-                  </div>
-                  <div className={'text-center border-1 border-light'}>
-                    <input
-                      {...register(`${name}.components.${index}.position.x`, {
-                        valueAsNumber: true,
-                      })}
-                      className={'form-control'}
-                    />
-                  </div>
-                  <div className={'text-center border-1 border-light'}>
-                    <input
-                      className={'form-control'}
-                      {...register(`${name}.components.${index}.position.y`, {
-                        valueAsNumber: true,
-                      })}
-                    />
-                  </div>
-                  <div className={'text-center border-1 border-light'}>
-                    <button
-                      className={'btn btn-danger'}
-                      onClick={() => remove(index)}
-                    >
-                      D
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
-        </div>
-      </div>
-      <button
-        className={'btn btn-secondary'}
-        type={'button'}
-        onClick={() => append(defaultComponent)}
-      >
-        +
-      </button>
+      <ComponentTable name={name} />
     </>
   );
 }

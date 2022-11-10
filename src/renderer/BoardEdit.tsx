@@ -43,7 +43,6 @@ export interface BoardEditProps {
 }
 
 type SelectedLayer = 'Top' | 'Bottom';
-
 export function BoardEdit({ board, path }: BoardEditProps) {
   const navigate = useNavigate();
   const formMethods = useForm<Board>({
@@ -150,10 +149,9 @@ function BoardPreview() {
     formState: { isValid },
     watch,
   } = useFormContext();
-
+  // TODO Handle id repetition
   const board = watch();
   const { layerTop, layerBottom } = board ?? {};
-  console.log(layerTop);
   return (
     <div className={'vh-100'}>
       <div className={'h-50'}>

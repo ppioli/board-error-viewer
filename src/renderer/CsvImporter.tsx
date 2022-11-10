@@ -14,7 +14,6 @@ export function CsvImporter({ onLoad }: CsvImporterProps) {
     const fileReader = new FileReader();
     fileReader.onload = () => {
       // process loaded file
-      debugger;
       const result: Component[] = [];
       const lines = (fileReader.result as string).split('\n');
       if (lines.length < 2) {
@@ -47,7 +46,7 @@ export function CsvImporter({ onLoad }: CsvImporterProps) {
         type={'button'}
         onClick={() => csvFileRef.current?.click()}
       >
-        Import from CVS file
+        Import from CSV file
       </button>
       <input
         className={'d-none'}

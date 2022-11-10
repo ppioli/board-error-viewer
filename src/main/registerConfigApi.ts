@@ -62,7 +62,7 @@ export function registerConfigApi(window: BrowserWindow) {
   _window = window;
   ipcMain.handle(ConfigApiChannels.ConfigGet, async (event: any) => {
     try {
-      const config = readConfigFile();
+      const config = await readConfigFile();
       return okResult(config);
     } catch (error: any) {
       return noResult(error);
