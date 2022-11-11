@@ -1,6 +1,6 @@
 import { FormProvider, useForm, useFormContext } from 'react-hook-form';
 import { array, number, boolean, object, SchemaOf, string } from 'yup';
-import { Board, Component, Image, Layer, Vector } from '../model/Board';
+import { Board, Component, Image, Layer, Vector } from '../../model/Board';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { LayerEdit } from './LayerEdit';
 import classNames from 'classnames';
@@ -29,9 +29,8 @@ const layerSchema: SchemaOf<Layer> = object().shape({
   image: imageSchema.nullable(),
   offset: vectorSchema,
   rotation: number().required(),
-  flipX: boolean().required(),
-  flipY: boolean().required(),
   scale: vectorSchema,
+  flip: vectorSchema,
 });
 
 const boardSchema: SchemaOf<Board> = object().shape({
@@ -55,7 +54,7 @@ export function BoardEdit({ board, path }: BoardEditProps) {
     reValidateMode: 'onChange',
   });
   const [selectedTab, setSelectedTab] = useState<SelectedLayer>('Top');
-  const { register, handleSubmit, formState } = formMethods;
+  const { register, handleSubmit } = formMethods;
 
   const onSubmit = (board: Board) => {
     console.log('submitted');
@@ -67,7 +66,6 @@ export function BoardEdit({ board, path }: BoardEditProps) {
       }
     });
   };
-  const { errors } = formState;
   return (
     <FormProvider {...formMethods}>
       <div className={'row'}>
@@ -94,7 +92,7 @@ export function BoardEdit({ board, path }: BoardEditProps) {
                               active: selectedTab === 'Top',
                             })}
                             aria-current="page"
-                            href="#"
+                            href="renderer/boardEdit/BoardEdit#"
                             onClick={() => setSelectedTab('Top')}
                           >
                             Top
@@ -106,7 +104,7 @@ export function BoardEdit({ board, path }: BoardEditProps) {
                               active: selectedTab === 'Bottom',
                             })}
                             aria-current="page"
-                            href="#"
+                            href="renderer/boardEdit/BoardEdit#"
                             onClick={() => setSelectedTab('Bottom')}
                           >
                             Bottom
@@ -157,6 +155,7 @@ function BoardPreview() {
   const [showTop, setShowTop] = useState(true);
   const board = watch();
   const { layerTop, layerBottom } = board ?? {};
+  console.log(board)
   const show = showTop ? (
     layerTop ? (
       <BoardViewer title={'Layer top'} layer={layerTop} />

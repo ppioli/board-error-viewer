@@ -1,7 +1,7 @@
 import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { Board, defaultBoard } from 'model/Board';
-import { BoardEdit } from 'renderer/BoardEdit';
+import { BoardEdit } from 'renderer/boardEdit/BoardEdit';
 
 export function BoardEditPage() {
   const { path } = useParams();

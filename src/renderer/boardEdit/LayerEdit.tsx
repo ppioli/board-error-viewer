@@ -1,44 +1,21 @@
-import { useController, useFieldArray, useFormContext } from 'react-hook-form';
-import { Component, defaultComponent } from '../model/Board';
+import { useFormContext } from 'react-hook-form';
 import { ImageSelector } from 'renderer/ImageSelector';
-import { CsvImporter } from 'renderer/CsvImporter';
 import { ComponentTable } from './ComponentTable';
+import { RotationControl } from './RotationControl';
+import { FlipControl } from './FlipControl';
 
 export interface LayerEditProps {
   name: string;
-}
-export function RotationControl({ name }: { name: string }) {
-  const {
-    field: { value, onChange },
-  } = useController({
-    name,
-  });
-
-  return (
-    <>
-      <button
-        className={'btn btn-primary'}
-        type={'button'}
-        onClick={() => onChange(value - 90)}
-      >
-        Rotate Left
-      </button>
-      <button
-        className={'btn btn-primary'}
-        type={'button'}
-        onClick={() => onChange(value + 90)}
-      >
-        Rotate Right
-      </button>
-    </>
-  );
 }
 export function LayerEdit({ name }: LayerEditProps) {
   const { control, register, setValue } = useFormContext();
   return (
     <>
       <ImageSelector name={`${name}.image`} />
-      <RotationControl name={`${name}.rotation`} />
+      <div className={'d-flex'}>
+        <RotationControl name={`${name}.rotation`} />
+        <FlipControl name={`${name}.flip`} />
+      </div>
       <div className={'col-6'}>
         <label>Offset X</label>
         <input

@@ -1,6 +1,6 @@
 import { useFormContext } from 'react-hook-form';
 import { defaultLayer } from 'model/Board';
-import { LayerEdit } from 'renderer/LayerEdit';
+import { LayerEdit } from 'renderer/boardEdit/LayerEdit';
 export interface LayerToggleProps {
   name: string;
 }

@@ -1,8 +1,9 @@
 import { Layer } from '../model/Board';
-import { useRef, useState } from 'react';
+import { useCallback, useRef } from 'react';
 import { useSize } from './useSize';
 import { LogEntryLine } from '../model/LogEntry';
 import { ComponentMarker } from './ComponentMarker';
+import QuickPinchZoom, { make3dTransformValue } from 'react-quick-pinch-zoom';
 
 export interface BoardViewerProps {
   title: string;
@@ -12,11 +13,16 @@ export interface BoardViewerProps {
 }
 
 export function BoardViewer({ layer, title, log }: BoardViewerProps) {
-  const { image, offset, components, scale, rotation } = layer;
+  const {
+    image,
+    offset,
+    components,
+    scale,
+    rotation,
+    flip: { x: flipX, y: flipY },
+  } = layer;
   const containerRef = useRef<HTMLDivElement | null>(null);
   // if we get a list of errors, we will display only components with errors
-  const [flipX, setFlipX] = useState(false);
-  const [flipY, setFlipY] = useState(false);
   const isErrorMode = log !== undefined;
   const {
     offsetX: naturalOffsetX,
@@ -27,82 +33,95 @@ export function BoardViewer({ layer, title, log }: BoardViewerProps) {
     imageWidth: image?.width,
     imageHeight: image?.height,
   });
-  // TODO find style type
-  const style: any = {
-    transform: `scale(${flipX ? '-1' : '1'}, ${flipY ? '-1' : '1'})`,
-    width: (image?.width ?? 1) * naturalScale,
-    height: (image?.height ?? 1) * naturalScale,
-    border: '1px solid red',
-  };
+  const onUpdate = useCallback(({ x, y, scale }: any) => {
+    const { current: img } = containerRef;
+
+    if (img) {
+      const value = make3dTransformValue({ x, y, scale });
+
+      img.style.setProperty('transform', value);
+    }
+  }, []);
   return (
     <div className={'card h-100 w-100'}>
       <div className={'card-header'}>{title}</div>
       <div className={'card-body'}>
-        <div
-          style={{
-            position: 'relative',
-            width: '100%',
-            height: '100%',
-            border: '1px solid black',
+        <QuickPinchZoom
+          wheelScaleFactor={500}
+          inertia={false}
+          onUpdate={onUpdate}
+          containerProps={{
+            style: {
+              position: 'relative',
+              width: '100%',
+              height: '100%',
+              border: '1px solid black',
+            },
           }}
-          ref={containerRef}
         >
-          {image && (
-            <img
-              alt={'board'}
-              src={image.data}
+          <div style={{
+              position: 'relative',
+              width: '100%',
+              height: '100%',
+              border: '1px solid black',
+            }} ref={containerRef}>
+            <div
               style={{
-                width: image.width * naturalScale,
-                height: image.height * naturalScale,
-                transform: `rotation(${rotation}deg)`,
+                position: 'absolute',
                 left: naturalOffsetX,
                 top: naturalOffsetY,
-                position: 'absolute',
               }}
-            />
-          )}
-          <div
-            style={{
-              position: 'absolute',
-              top: offset.y + naturalOffsetY,
-              left: offset.x + naturalOffsetX,
-            }}
-          >
-            <div style={{ position: 'relative', ...style }}>
-              {components.map((c, ix) => {
-                const error = log?.get(c.id);
-                const hasError = isErrorMode && error !== undefined;
-                // If we have an error log, we only show error
-                if (isErrorMode && !hasError) {
-                  return null;
-                }
-
-                return (
-                  <ComponentMarker
-                    component={c}
-                    naturalScale={naturalScale}
-                    scale={scale}
-                    message={error ? JSON.stringify(error) : undefined}
+            >
+              {image && (
+                <div
+                  style={{
+                    position: 'relative',
+                    transformOrigin: 'center',
+                  }}
+                >
+                  <img
+                    alt={'board'}
+                    src={image.data}
+                    style={{
+                      position: 'absolute',
+                      width: image.width * naturalScale,
+                      height: image.height * naturalScale,
+                    }}
                   />
-                );
-              })}
+                </div>
+              )}
+              <div
+                style={{
+                  transform: `scale(${flipX}, ${flipY}) rotate(${rotation}deg)`,
+                  width: (image?.width ?? 0) * naturalScale,
+                  height: (image?.height ?? 0) * naturalScale,
+                  border: '1px solid red',
+                  position: 'relative',
+                  top: offset.y,
+                  left: offset.x,
+                }}
+              >
+                {components.map((c, ix) => {
+                  const error = log?.get(c.id);
+                  const hasError = isErrorMode && error !== undefined;
+                  // If we have an error log, we only show error
+                  if (isErrorMode && !hasError) {
+                    return null;
+                  }
+
+                  return (
+                    <ComponentMarker
+                      component={c}
+                      naturalScale={naturalScale}
+                      scale={scale}
+                      message={error ? JSON.stringify(error) : undefined}
+                    />
+                  );
+                })}
+              </div>
             </div>
           </div>
-          <div style={{ position: 'absolute', zIndex: 99999 }}>
-            <button
-              className={'btn btn-primary'}
-              onClick={() => setFlipX((s) => !s)}
-            >
-              flipX
-            </button>
-            <button
-              className={'btn btn-primary'}
-              onClick={() => setFlipY((s) => !s)}
-            >
-              flipY
-            </button>
-          </div>
-        </div>
+        </QuickPinchZoom>
       </div>
     </div>
   );

@@ -1,8 +1,8 @@
 import { Component, Vector } from '../model/Board';
-import { LogEntryLine } from '../model/LogEntry';
 
 const TEXT_BOX_SIZE = 100;
 const MARKER_SIZE = 10;
+
 export interface ComponentMarkerProps {
   component: Component;
   naturalScale: number;
@@ -11,6 +11,7 @@ export interface ComponentMarkerProps {
   textBoxSize?: number;
   message?: string;
 }
+
 export function ComponentMarker({
   component,
   naturalScale,
@@ -39,7 +40,7 @@ export function ComponentMarker({
               ? '2px solid white'
               : '1px solid red',
             borderRadius: markerSize,
-            background: 'red',
+            backgroundColor: 'rgba(255, 0, 0, 0.3)',
             top: -(markerSize / 2),
             left: -(markerSize / 2),
           }}

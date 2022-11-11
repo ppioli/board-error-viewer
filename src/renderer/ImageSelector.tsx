@@ -48,12 +48,6 @@ export function ImageSelector({ name }: ImageSelectorProps) {
         >
           {hasImage ? 'Change image' : 'Select image'}
         </button>
-        <button type={'button'} className={'btn btn-secondary'}>
-          Rotate
-        </button>
-        <button type={'button'} className={'btn btn-secondary'}>
-          Rotate
-        </button>
         <button
           type={'button'}
           className={'btn btn-secondary'}

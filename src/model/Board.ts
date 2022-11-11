@@ -14,8 +14,7 @@ export interface Layer {
   image: Image | null;
   offset: Vector;
   scale: Vector;
-  flipX: boolean;
-  flipY: boolean;
+  flip: Vector;
   rotation: number;
   components: Component[];
 }
@@ -35,8 +34,7 @@ export const defaultLayer: Layer = {
   components: [],
   image: null,
   scale: { x: 1, y: 1 },
-  flipX: false,
-  flipY: false,
+  flip: { x: 1, y: 1 },
   rotation: 0,
   offset: defaultVector,
 };

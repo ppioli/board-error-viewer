@@ -1,6 +1,6 @@
 import { useFieldArray, useFormContext } from 'react-hook-form';
-import { Component, defaultComponent } from '../model/Board';
-import { CsvImporter } from './CsvImporter';
+import { Component, defaultComponent } from '../../model/Board';
+import { CsvImporter } from '../CsvImporter';
 import { ComponentTableRow } from './ComponentTableRow';
 import { Virtuoso } from 'react-virtuoso';
 

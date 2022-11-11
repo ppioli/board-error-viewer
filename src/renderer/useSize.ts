@@ -50,7 +50,7 @@ export const useSize = ({
     return {
       scale: 1,
       offsetY: 0,
-      offsetX: 0
+      offsetX: 0,
     }
   }
 
