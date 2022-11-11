@@ -1,11 +1,11 @@
 import { LogEntry } from '../model/LogEntry';
 
 const lineDefinition: LineDefinition = [
-  { start: 7, width: 26 },
-  { start: 108, width: 114 },
-  { start: 122, width: 130 },
-  { start: 133, width: 141 },
-  { start: 144, width: 152 },
+  { start: 15, end: 26 },
+  { start: 108, end: 114 },
+  { start: 122, end: 130 },
+  { start: 133, end: 141 },
+  { start: 144, end: 152 },
 ];
 function splitLines(data: string) {
   return data.split('\n').filter((l) => l.length > 0);
@@ -67,8 +67,8 @@ export class LineSplitter {
 
 export function parseLine(line: string, definition: LineDefinition) {
   const result: string[] = [];
-  definition.forEach(({ start, width }) => {
-    result.push(line.substring(start, start + width));
+  definition.forEach(({ start, end }) => {
+    result.push(line.substring(start, end).trim());
   });
   return result;
 }
@@ -78,5 +78,5 @@ export type LineDefinition = SegmentDefinition[];
 
 export interface SegmentDefinition {
   start: number;
-  width: number;
+  end: number;
 }

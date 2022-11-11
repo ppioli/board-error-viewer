@@ -11,7 +11,9 @@ export function BoardEditPage() {
       setBoard(defaultBoard);
       return;
     }
-    window.electron.fileApi.boardOpen(path).then(setBoard);
+    window.electron.fileApi.boardOpen(path).then(({ result }) => {
+      setBoard(result!);
+    });
   }, [path]);
   if (board === null) {
     return null;

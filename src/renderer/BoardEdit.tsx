@@ -1,5 +1,5 @@
 import { FormProvider, useForm, useFormContext } from 'react-hook-form';
-import { array, number, object, SchemaOf, string } from 'yup';
+import { array, number, boolean, object, SchemaOf, string } from 'yup';
 import { Board, Component, Image, Layer, Vector } from '../model/Board';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { LayerEdit } from './LayerEdit';
@@ -28,6 +28,9 @@ const layerSchema: SchemaOf<Layer> = object().shape({
   components: array().of(componentSchema),
   image: imageSchema.nullable(),
   offset: vectorSchema,
+  rotation: number().required(),
+  flipX: boolean().required(),
+  flipY: boolean().required(),
   scale: vectorSchema,
 });
 
@@ -43,6 +46,7 @@ export interface BoardEditProps {
 }
 
 type SelectedLayer = 'Top' | 'Bottom';
+
 export function BoardEdit({ board, path }: BoardEditProps) {
   const navigate = useNavigate();
   const formMethods = useForm<Board>({
@@ -67,7 +71,7 @@ export function BoardEdit({ board, path }: BoardEditProps) {
   return (
     <FormProvider {...formMethods}>
       <div className={'row'}>
-        <div className={'col-6'}>
+        <div className={'col-3'}>
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className={'card vh-100 '}>
               <div className={'card-header h4'}>Edit board</div>
@@ -136,7 +140,7 @@ export function BoardEdit({ board, path }: BoardEditProps) {
             </div>
           </form>
         </div>
-        <div className={'col-6'}>
+        <div className={'col-9'}>
           <BoardPreview />
         </div>
       </div>
@@ -150,24 +154,34 @@ function BoardPreview() {
     watch,
   } = useFormContext();
   // TODO Handle id repetition
+  const [showTop, setShowTop] = useState(true);
   const board = watch();
   const { layerTop, layerBottom } = board ?? {};
+  const show = showTop ? (
+    layerTop ? (
+      <BoardViewer title={'Layer top'} layer={layerTop} />
+    ) : (
+      <div>...</div>
+    )
+  ) : layerBottom ? (
+    <BoardViewer title={'Layer bottom'} layer={layerBottom} />
+  ) : (
+    <div>...</div>
+  );
   return (
     <div className={'vh-100'}>
-      <div className={'h-50'}>
-        {layerTop ? (
-          <BoardViewer title={'Layer top'} layer={layerTop} />
-        ) : (
-          <div>...</div>
-        )}
+      <div style={{ position: 'relative', zIndex: 10000 }}>
+        <button
+          className={'btn btn-primary'}
+          style={{
+            position: 'absolute',
+          }}
+          onClick={() => setShowTop((s) => !s)}
+        >
+          Toggle
+        </button>
       </div>
-      <div className={'h-50'}>
-        {layerBottom ? (
-          <BoardViewer title={'Layer bottom'} layer={layerBottom} />
-        ) : (
-          <div>...</div>
-        )}
-      </div>
+      <div className={'h-100'}>{show}</div>
     </div>
   );
 }

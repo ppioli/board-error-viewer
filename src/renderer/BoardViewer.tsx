@@ -1,17 +1,23 @@
 import { Layer } from '../model/Board';
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { useSize } from './useSize';
+import { LogEntryLine } from '../model/LogEntry';
+import { ComponentMarker } from './ComponentMarker';
 
 export interface BoardViewerProps {
   title: string;
   layer: Layer;
+  log?: Map<string, LogEntryLine>;
+  markerSize?: number;
 }
 
-const MARKER_SIZE = 15;
-
-export function BoardViewer({ layer, title }: BoardViewerProps) {
-  const { image, offset, components, scale } = layer;
+export function BoardViewer({ layer, title, log }: BoardViewerProps) {
+  const { image, offset, components, scale, rotation } = layer;
   const containerRef = useRef<HTMLDivElement | null>(null);
+  // if we get a list of errors, we will display only components with errors
+  const [flipX, setFlipX] = useState(false);
+  const [flipY, setFlipY] = useState(false);
+  const isErrorMode = log !== undefined;
   const {
     offsetX: naturalOffsetX,
     offsetY: naturalOffsetY,
@@ -21,8 +27,13 @@ export function BoardViewer({ layer, title }: BoardViewerProps) {
     imageWidth: image?.width,
     imageHeight: image?.height,
   });
-
-  console.log(scale, naturalScale)
+  // TODO find style type
+  const style: any = {
+    transform: `scale(${flipX ? '-1' : '1'}, ${flipY ? '-1' : '1'})`,
+    width: (image?.width ?? 1) * naturalScale,
+    height: (image?.height ?? 1) * naturalScale,
+    border: '1px solid red',
+  };
   return (
     <div className={'card h-100 w-100'}>
       <div className={'card-header'}>{title}</div>
@@ -43,6 +54,7 @@ export function BoardViewer({ layer, title }: BoardViewerProps) {
               style={{
                 width: image.width * naturalScale,
                 height: image.height * naturalScale,
+                transform: `rotation(${rotation}deg)`,
                 left: naturalOffsetX,
                 top: naturalOffsetY,
                 position: 'absolute',
@@ -52,28 +64,43 @@ export function BoardViewer({ layer, title }: BoardViewerProps) {
           <div
             style={{
               position: 'absolute',
-              border: '1px solid red',
-              left: offset.x + naturalOffsetX,
               top: offset.y + naturalOffsetY,
-              width: 100,
-              height: 100,
+              left: offset.x + naturalOffsetX,
             }}
           >
-            <div style={{ position: 'relative' }}>
-              {components.map((c, ix) => (
-                <div
-                  key={c.id}
-                  style={{
-                    width: 19,
-                    height: 19,
-                    backgroundColor: 'red',
-                    position: 'absolute',
-                    left: c.position.x * naturalScale * scale.x,
-                    top: c.position.y * naturalScale * scale.y,
-                  }}
-                />
-              ))}
+            <div style={{ position: 'relative', ...style }}>
+              {components.map((c, ix) => {
+                const error = log?.get(c.id);
+                const hasError = isErrorMode && error !== undefined;
+                // If we have an error log, we only show error
+                if (isErrorMode && !hasError) {
+                  return null;
+                }
+
+                return (
+                  <ComponentMarker
+                    component={c}
+                    naturalScale={naturalScale}
+                    scale={scale}
+                    message={error ? JSON.stringify(error) : undefined}
+                  />
+                );
+              })}
             </div>
+          </div>
+          <div style={{ position: 'absolute', zIndex: 99999 }}>
+            <button
+              className={'btn btn-primary'}
+              onClick={() => setFlipX((s) => !s)}
+            >
+              flipX
+            </button>
+            <button
+              className={'btn btn-primary'}
+              onClick={() => setFlipY((s) => !s)}
+            >
+              flipY
+            </button>
           </div>
         </div>
       </div>

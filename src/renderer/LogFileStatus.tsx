@@ -1,21 +1,35 @@
-import { LogFile } from '../model/LogFile';
 import { ReactNode } from 'react';
 import { LogFileParseResult } from '../model/LogFileParseResult';
 
 export interface LogFileStatusProps {
   error: Error | null;
   log: LogFileParseResult | null;
-  loading: boolean;
 }
 
-export function LogFileStatus({ error, log, loading }: LogFileStatusProps) {
+export function LogFileStatus({ error, log }: LogFileStatusProps) {
   let content: ReactNode;
-  if (loading) {
-    content = <div>...</div>;
-  } else if (error) {
-    content = <div>{error.message}</div>;
+  if (error) {
+    content = (
+      <div className="alert alert-danger" role="alert">
+        <h4 className="alert-heading">
+          An error occurred while processing log file
+        </h4>
+        <div className={'d-flex justify-content-between'}>
+          <div>Status: {log?.path}</div>
+          <div className="mb-0 text-muted fs-6 text-right">{log?.error}</div>
+        </div>
+      </div>
+    );
   } else {
-    content = <div>{JSON.stringify(log)}</div>;
+    content = (
+      <div className="alert alert-primary" role="alert">
+        <h4 className="alert-heading">Model: {log?.entry?.model}</h4>
+        <div className={'d-flex justify-content-between'}>
+          <div>Status: {log?.entry?.status}</div>
+          <div className="mb-0 text-muted text-right">{log?.entry?.date}</div>
+        </div>
+      </div>
+    );
   }
-  return <div>{content}</div>;
+  return content;
 }
