@@ -1,5 +1,5 @@
 import { MemoryRouter as Router, Route, Routes } from 'react-router-dom';
-import 'bootswatch/dist/slate/bootstrap.min.css'; // Added this :boom:
+import './App.scss'
 import { BoardEditPage } from 'renderer/BoardEditPage';
 import { AnalysisPage } from 'renderer/AnalysisPage';
 import { ConfigEditPage } from 'renderer/ConfigEditPage';
