@@ -199,8 +199,8 @@
     "webpack-merge": "^5.8.0"
   },
   "build": {
-    "productName": "ElectronReact",
-    "appId": "org.erb.ElectronReact",
+    "productName": "BoardErrorViewer",
+    "appId": "dev.ppioli.BoardErrorViewer",
     "asar": true,
     "asarUnpack": "**\\*.{node,dll}",
     "files": [
