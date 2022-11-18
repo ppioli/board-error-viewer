@@ -257,7 +257,7 @@
     ],
     "publish": {
       "provider": "github",
-      "owner": "board-error-viewer",
+      "owner": "ppioli",
       "repo": "board-error-viewer"
     }
   },
