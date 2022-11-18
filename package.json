@@ -236,6 +236,7 @@
       ]
     },
     "win": {
+      "verifyUpdateCodeSignature": false,
       "target": [
         "nsis"
       ]
