@@ -29,10 +29,10 @@ export function ImageSelector({ name }: ImageSelectorProps) {
           width: img.width,
           height: img.height,
           data: reader.result!.toString(),
-        }
+        };
         console.log(result);
         onChange(result);
-      }
+      };
       img.src = reader.result!.toString();
     };
     reader.readAsDataURL(file);

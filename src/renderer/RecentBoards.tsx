@@ -42,12 +42,17 @@ export function RecentBoards() {
         )}
         {recentBoards.map((rb) => (
           <div
-            className={'list-group-item list-group-item-action'}
+            className={'list-group-item list-group-item-action d-flex'}
             key={rb.path}
             onClick={() => openBoard(rb.path)}
           >
-            <div className={'h4'}>{rb.name}</div>
-            <div className={'text-muted'}>{rb.path}</div>
+            <div className={'flex-fill'}>
+              <div className={'h4'}>{rb.name}</div>
+              <div className={'text-muted'}>{rb.path}</div>
+            </div>
+            <button type={'button'} className={'btn btn-link'}>
+              x
+            </button>
           </div>
         ))}
       </div>

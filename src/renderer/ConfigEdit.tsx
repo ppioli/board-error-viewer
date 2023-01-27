@@ -92,7 +92,14 @@ export function ConfigEdit({ config }: ConfigEditProps) {
             </div>
           </div>
         </div>
-        <div className={'card-footer'}>
+        <div className={'card-footer d-flex justify-content-end'}>
+          <button
+            onClick={() => navigate('/')}
+            type={'button'}
+            className={'btn btn-secondary'}
+          >
+            Cancelar
+          </button>
           <button type={'submit'} className={'btn btn-primary'}>
             Save
           </button>

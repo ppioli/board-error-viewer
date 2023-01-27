@@ -1,5 +1,5 @@
 import { useCallback, useMemo } from 'react';
-import { BoardViewer } from './BoardViewer';
+import { LayerRenderer } from './LayerRenderer';
 import { Board } from '../model/Board';
 import { useApiCall } from './useApiCall';
 import { okResult } from '../model/ApiResult';
@@ -82,13 +82,13 @@ export function LogFileViewer({ board, logPath }: LogFileViewerProps) {
       <LogFileStatus error={error} log={log} />
       {errorsPerLayer && (
         <>
-          <BoardViewer
+          <LayerRenderer
             layer={board.layerTop}
             title={'Top layer'}
             log={errorsPerLayer?.get('TOP') ?? new Map<string, LogEntryLine>()}
           />
           {board.layerBottom && (
-            <BoardViewer
+            <LayerRenderer
               layer={board.layerBottom}
               title={'Bottom layer'}
               log={

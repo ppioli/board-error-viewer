@@ -1,11 +1,13 @@
 import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { Board, defaultBoard } from 'model/Board';
-import { BoardEdit } from 'renderer/boardEdit/BoardEdit';
+import { BoardForm } from 'renderer/boardEdit/BoardEdit';
+import { BoardRenderer } from './boardEdit/BoardRenderer';
 
 export function BoardEditPage() {
   const { path } = useParams();
   const [board, setBoard] = useState<Board | null>(null);
+
   useEffect(() => {
     if (!path || path === 'create') {
       setBoard(defaultBoard);
@@ -15,12 +17,18 @@ export function BoardEditPage() {
       setBoard(result!);
     });
   }, [path]);
+
   if (board === null) {
     return null;
   }
   return (
-    <div>
-      <BoardEdit board={board} />
+    <div className={'d-flex'}>
+      <div style={{ width: 400 }}>
+        <BoardForm board={board} onChange={setBoard} />
+      </div>
+      <div className={'flex-fill'}>
+        <BoardRenderer board={board} />
+      </div>
     </div>
   );
 }

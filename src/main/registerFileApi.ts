@@ -29,7 +29,7 @@ const startWatcher = async () => {
     _watcher = watch(watchDir, {
       ignored: /(^|[\/\\])\../, // ignore dotfiles
       persistent: true,
-      ignoreInitial: false,
+      ignoreInitial: true,
     });
     //Add event listeners.
     _watcher.on('add', async (path, stats) => {
