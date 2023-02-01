@@ -26,6 +26,7 @@ export function AnalysisPage() {
     return null;
   }
   if (!board) {
+    console.log(error)
     return <ErrorPage error={error!} />;
   }
   return (

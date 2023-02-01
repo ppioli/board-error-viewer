@@ -1,19 +1,30 @@
-import { getErrorMessage } from '../util/utils';
+import { ApiError, ClientError } from './ApiError';
+import { handleError } from '../main/util';
 
 export interface ApiResult<T> {
-  result: null | T;
-  error: null | Error;
+  result: T | null;
+  error: ClientError | ApiError | null;
 }
 
 export function okResult<T>(result: T): ApiResult<T> {
   return {
     result,
-    error: null,
+    error: null
   };
 }
-export function noResult<T>(error: any): ApiResult<T> {
+
+export function clientErrorResult<T>(displayMessage: string): ApiResult<T> {
+  return {
+    error: { displayMessage},
+    result: null
+  }
+}
+
+export function apiErrorResult<T>(error: any){
   return {
     result: null,
-    error: getErrorMessage(error),
-  };
+    error: handleError(error),
+  }
 }
+
+

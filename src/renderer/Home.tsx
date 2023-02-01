@@ -1,5 +1,5 @@
 import logo from '../../assets/pcb-board.png';
-import { RecentBoards } from './RecentBoards';
+import { RecentBoards } from './recentBoards/RecentBoards';
 
 export const Home = () => {
   return (
@@ -13,7 +13,7 @@ export const Home = () => {
         src={logo}
         style={{ width: 100, height: 'auto' }}
       />
-      <h1>BoardErrorViewer</h1>
+      <h1>Beview</h1>
       <RecentBoards />
     </div>
   );

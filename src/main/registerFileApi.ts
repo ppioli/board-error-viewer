@@ -8,7 +8,8 @@ import { LogFileParseResult } from '../model/LogFileParseResult';
 import { LogFile } from '../model/LogFile';
 import { default as libpath } from 'path';
 import { readConfigFile, updateRecentBoards } from './registerConfigApi';
-import { noResult, okResult } from '../model/ApiResult';
+import { apiErrorResult, clientErrorResult, okResult } from '../model/ApiResult';
+import logger from './logger';
 
 // File change watcher
 let _watcher: FSWatcher | null = null;
@@ -24,7 +25,7 @@ const startWatcher = async () => {
     const config = await readConfigFile();
     const { watchDir, extension } = config;
     if (!watchDir) {
-      return noResult(new Error('Watch dir not set'));
+      return clientErrorResult("")
     }
     _watcher = watch(watchDir, {
       ignored: /(^|[\/\\])\../, // ignore dotfiles
@@ -45,8 +46,8 @@ const startWatcher = async () => {
     });
     return okResult(config);
   } catch (error: any) {
-    console.log(error);
-    return noResult(error);
+    logger.info(error);
+    return apiErrorResult(error);
   }
 };
 
@@ -61,10 +62,9 @@ const reportOpen = async (path: string) => {
       path: path,
     };
     result.entry = parseLog(lines);
-    console.log(result);
     return okResult(result);
   } catch (error: any) {
-    return noResult(error);
+    return apiErrorResult(error);
   }
 };
 
@@ -102,7 +102,7 @@ export const registerFileApi = (window: BrowserWindow) => {
       await updateRecentBoards({ path: filePath, name: board.name }, false);
       return okResult(filePath);
     } catch (error: any) {
-      return noResult(error);
+      return apiErrorResult(error);
     }
   });
   ipcMain.handle(FileApiChannels.BoardOpen, async (event, path) => {
@@ -113,10 +113,12 @@ export const registerFileApi = (window: BrowserWindow) => {
       await updateRecentBoards({ path, name: board.name }, false);
       return okResult(board);
     } catch (error: any) {
+      console.log(error.stac)
       if (error.code === 'ENOENT') {
-        await updateRecentBoards({ path, name: '' }, false);
+        await updateRecentBoards({ path, name: null }, false);
+        return clientErrorResult("The selected board no longer exists (file moved or deleted?)")
       }
-      return noResult(error);
+      return apiErrorResult(error);
     }
   });
   ipcMain.handle(FileApiChannels.ReportOpen, (event: any, path: string) =>

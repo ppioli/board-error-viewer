@@ -1,5 +1,4 @@
 /* eslint global-require: off, no-console: off, promise/always-return: off */
-
 /**
  * This module executes inside of electron's main process. You can start
  * electron renderer process from here and communicate with the other processes
@@ -13,9 +12,19 @@ import { app, BrowserWindow, ipcMain, shell } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
-import { resolveHtmlPath } from './util';
 import { registerFileApi } from '../main/registerFileApi';
 import { registerConfigApi } from '../main/registerConfigApi';
+import { URL } from 'url';
+
+export function resolveHtmlPath(htmlFileName: string) {
+  if (process.env.NODE_ENV === 'development') {
+    const port = process.env.PORT || 1212;
+    const url = new URL(`http://localhost:${port}`);
+    url.pathname = htmlFileName;
+    return url.href;
+  }
+  return `file://${path.resolve(__dirname, '../renderer/', htmlFileName)}`;
+}
 
 class AppUpdater {
   constructor() {

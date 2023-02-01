@@ -1,4 +1,4 @@
 export interface RecentBoard {
-  name: string;
+  name: string | null;
   path: string;
 }

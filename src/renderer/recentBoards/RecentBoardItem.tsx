@@ -1,0 +1,46 @@
+import { useNavigate } from 'react-router-dom';
+import { RecentBoard } from '../../model/RecentBoard';
+import { MouseEventHandler, useState } from 'react';
+import classNames from 'classnames';
+interface RecentBoardItemProps {
+  board: RecentBoard
+}
+export function RecentBoardItem( {board} : RecentBoardItemProps) {
+  const navigate = useNavigate();
+  const [active, setActive] = useState(false)
+  const openBoard = (path: string) => {
+    navigate('/analysis/' + encodeURIComponent(path));
+  };
+
+  const handleMouseOver: MouseEventHandler<HTMLDivElement> = (event) => {
+    if( event.type === 'mouseleave'){
+      setActive(false)
+    } else if ( event.type === 'mouseenter'){
+      setActive(true)
+    }
+  }
+
+  const removeBoard: MouseEventHandler<HTMLButtonElement> = ( event ) => {
+    event.stopPropagation();
+  }
+  const boardAvailable = board.name !== null;
+  return (
+    <div
+      onMouseEnter={handleMouseOver}
+      onMouseLeave={handleMouseOver}
+      className={'list-group-item list-group-item-action d-flex'}
+      key={board.path}
+      onClick={() => openBoard(board.path)}
+    >
+      <div className={'flex-fill'}>
+        <div className={'h4'}>{boardAvailable ?board.name : "<Board Not Found>"}</div>
+        <div className={'text-muted'}>{boardAvailable ? board.path : `Board saved file is missing (Maybe it was moved or deleted?)`}</div>
+      </div>
+      <button type={'button'} onClick={removeBoard} className={classNames('btn btn-danger', {
+        'invisible': !active
+      })}>
+        <i className={'bi-trash'}></i>
+      </button>
+    </div>
+  );
+}

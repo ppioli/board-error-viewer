@@ -4,8 +4,7 @@ import path from 'path';
 import fs from 'fs/promises';
 import { Config, defaultConfig } from '../model/Config';
 import { RecentBoard } from '../model/RecentBoard';
-import { getErrorMessage } from '../util/utils';
-import { noResult, okResult } from '../model/ApiResult';
+import { apiErrorResult, okResult } from '../model/ApiResult';
 
 let _window: BrowserWindow | null = null;
 const AppConfigDir = path.join(
@@ -65,7 +64,7 @@ export function registerConfigApi(window: BrowserWindow) {
       const config = await readConfigFile();
       return okResult(config);
     } catch (error: any) {
-      return noResult(error);
+      return apiErrorResult(error);
     }
   });
   ipcMain.handle(ConfigApiChannels.RecentBoards, async (event: any) => {
@@ -73,7 +72,7 @@ export function registerConfigApi(window: BrowserWindow) {
       const files = await readRecentBoardFile();
       return okResult(files);
     } catch (error: any) {
-      return noResult(error);
+      return apiErrorResult(error);
     }
   });
   ipcMain.handle(
@@ -84,7 +83,7 @@ export function registerConfigApi(window: BrowserWindow) {
         await fs.writeFile(ConfigFilePath, JSON.stringify(config));
         return null;
       } catch (err) {
-        return getErrorMessage(err);
+        return apiErrorResult(err)
       }
     }
   );

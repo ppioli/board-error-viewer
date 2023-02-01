@@ -1,19 +1,16 @@
-import { Link, useNavigate } from 'react-router-dom';
-import { useApiCall } from './useApiCall';
-import { ErrorPage } from './ErrorPage';
-import { OpenBoardButton } from './OpenBoardButton';
+import { Link } from 'react-router-dom';
+import { useApiCall } from '../useApiCall';
+import { ErrorPage } from '../ErrorPage';
+import { OpenBoardButton } from '../OpenBoardButton';
+import { RecentBoardItem } from './RecentBoardItem';
 
 export function RecentBoards() {
-  const navigate = useNavigate();
-  const openBoard = (path: string) => {
-    navigate('/analysis/' + encodeURIComponent(path));
-  };
   const {
     result: recentBoards,
     loading,
-    error,
+    error
   } = useApiCall({
-    call: window.electron.configApi.getRecentBoards,
+    call: window.electron.configApi.getRecentBoards
   });
   if (loading) {
     return null;
@@ -21,12 +18,12 @@ export function RecentBoards() {
   if (!recentBoards) {
     return <ErrorPage error={error!} />;
   }
-  console.log(recentBoards);
+
   return (
     <div
       style={{
         minWidth: 800,
-        minHeight: 600,
+        minHeight: 600
       }}
     >
       <div className={'list-group border rounded overflow-auto h-100'}>
@@ -40,21 +37,7 @@ export function RecentBoards() {
             </div>
           </div>
         )}
-        {recentBoards.map((rb) => (
-          <div
-            className={'list-group-item list-group-item-action d-flex'}
-            key={rb.path}
-            onClick={() => openBoard(rb.path)}
-          >
-            <div className={'flex-fill'}>
-              <div className={'h4'}>{rb.name}</div>
-              <div className={'text-muted'}>{rb.path}</div>
-            </div>
-            <button type={'button'} className={'btn btn-link'}>
-              x
-            </button>
-          </div>
-        ))}
+        {recentBoards.map((rb, ix) => <RecentBoardItem key={ix} board={rb} />)}
       </div>
       <div className={'d-flex flex-row-reverse'}>
         <Link className={'btn btn-primary'} to={'/edit/create'}>
@@ -68,3 +51,4 @@ export function RecentBoards() {
     </div>
   );
 }
+
