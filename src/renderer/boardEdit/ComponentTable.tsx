@@ -1,6 +1,6 @@
 import { useFieldArray, useFormContext } from 'react-hook-form';
 import { Component, defaultComponent } from '../../model/Board';
-import { CsvImporter } from '../CsvImporter';
+import { ExcelImporter } from './ExcelImporter';
 import { ComponentTableRow } from './ComponentTableRow';
 import { Virtuoso } from 'react-virtuoso';
 
@@ -26,7 +26,6 @@ export function ComponentTable({ name }: ComponentTableProps) {
         className={'d-flex justify-content-between align-items-baseline mb-1'}
       >
         <div className={'h5 mb-0'}>Components</div>
-        <CsvImporter onLoad={onCvsImported} />
       </div>
       <div className={'list-group'}>
         <div className={'list-group-item p-0'}>

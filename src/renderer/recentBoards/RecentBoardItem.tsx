@@ -3,9 +3,10 @@ import { RecentBoard } from '../../model/RecentBoard';
 import { MouseEventHandler, useState } from 'react';
 import classNames from 'classnames';
 interface RecentBoardItemProps {
-  board: RecentBoard
+  board: RecentBoard,
+  removeBoard: (path: string) => void;
 }
-export function RecentBoardItem( {board} : RecentBoardItemProps) {
+export function RecentBoardItem( {board, removeBoard} : RecentBoardItemProps) {
   const navigate = useNavigate();
   const [active, setActive] = useState(false)
   const openBoard = (path: string) => {
@@ -20,8 +21,9 @@ export function RecentBoardItem( {board} : RecentBoardItemProps) {
     }
   }
 
-  const removeBoard: MouseEventHandler<HTMLButtonElement> = ( event ) => {
+  const onRemove: MouseEventHandler<HTMLButtonElement> = ( event ) => {
     event.stopPropagation();
+    removeBoard(board.path);
   }
   const boardAvailable = board.name !== null;
   return (
@@ -36,7 +38,7 @@ export function RecentBoardItem( {board} : RecentBoardItemProps) {
         <div className={'h4'}>{boardAvailable ?board.name : "<Board Not Found>"}</div>
         <div className={'text-muted'}>{boardAvailable ? board.path : `Board saved file is missing (Maybe it was moved or deleted?)`}</div>
       </div>
-      <button type={'button'} onClick={removeBoard} className={classNames('btn btn-danger', {
+      <button type={'button'} onClick={onRemove} className={classNames('btn btn-danger', {
         'invisible': !active
       })}>
         <i className={'bi-trash'}></i>

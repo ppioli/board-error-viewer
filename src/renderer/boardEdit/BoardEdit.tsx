@@ -3,10 +3,11 @@ import { Board } from '../../model/Board';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { LayerEdit } from './LayerEdit';
 import classNames from 'classnames';
-import { useEffect, useState } from 'react';
-import { LayerToggle } from 'renderer/LayerToggle';
+import { useCallback, useEffect, useState } from 'react';
+import { LayerToggle } from 'renderer/components/boardRenderer/LayerToggle';
 import { useNavigate } from 'react-router-dom';
 import { boardSchema } from '../../model/schema';
+import { ExcelImporter } from './ExcelImporter';
 
 type SelectedLayer = 'Top' | 'Bottom';
 
@@ -22,18 +23,18 @@ export function BoardForm({ board, onChange }: BoardFormProps) {
     resolver: yupResolver(boardSchema),
     reValidateMode: 'onChange',
   });
-  const { register, handleSubmit, watch, formState } = formMethods;
+  const { register, handleSubmit, watch, setValue, reset } = formMethods;
   const [selectedTab, setSelectedTab] = useState<SelectedLayer>('Top');
   useEffect(() => {
-    const { isValid } = formState;
     const subscription = watch((value, info) => {
-      if (isValid) {
+      if (value) {
         onChange(value as Board);
       }
     });
 
     return () => subscription.unsubscribe();
-  }, [watch, formState]);
+  }, [watch]);
+
   const onSubmit = (board: Board) => {
     window.electron.fileApi.boardSave(board).then(({ result: path, error }) => {
       if (error) {
@@ -43,6 +44,10 @@ export function BoardForm({ board, onChange }: BoardFormProps) {
       }
     });
   };
+
+  const onExcelLoad = useCallback((board: Board) => {
+    reset(board)
+  }, []);
   return (
     <FormProvider {...formMethods}>
       <form onSubmit={handleSubmit(onSubmit)}>
@@ -59,6 +64,7 @@ export function BoardForm({ board, onChange }: BoardFormProps) {
                     className={'form-control'}
                   />
                 </div>
+                <ExcelImporter onLoad={onExcelLoad} />
                 <div className={'col-12'}>
                   <ul className="nav nav-tabs">
                     <li className="nav-item">
@@ -95,9 +101,12 @@ export function BoardForm({ board, onChange }: BoardFormProps) {
               </div>
             </div>
           </div>
-          <div className="card-footer flex-row-reverse flex">
+          <div className="card-footer flex-row-reverse d-flex">
             <button className={'btn btn-primary'} type={'submit'}>
               Save...
+            </button>
+            <button className={'btn btn-link'} type={'button'} onClick={() => navigate("/")}>
+              Cancel
             </button>
           </div>
         </div>

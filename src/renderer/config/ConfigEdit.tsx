@@ -3,7 +3,7 @@ import { Config, GetSupportedEncoding } from 'model/Config';
 import { object, mixed, SchemaOf, string } from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useNavigate } from 'react-router-dom';
-import { useToast } from './toast/ToastContext';
+import { useToast } from '../toast/ToastContext';
 import { useEffect } from 'react';
 
 export interface ConfigEditProps {
@@ -64,7 +64,7 @@ export function ConfigEdit({ config }: ConfigEditProps) {
                   readOnly={true}
                   {...register('watchDir')}
                 />
-                <button className={'btn btn-primary'} onClick={handleDirSelect}>
+                <button className={'btn btn-primary'} type={'button'} onClick={handleDirSelect}>
                   Select
                 </button>
               </div>

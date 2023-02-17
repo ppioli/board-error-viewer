@@ -3,15 +3,31 @@ import { useApiCall } from '../useApiCall';
 import { ErrorPage } from '../ErrorPage';
 import { OpenBoardButton } from '../OpenBoardButton';
 import { RecentBoardItem } from './RecentBoardItem';
+import { useCallback } from 'react';
+import { useToast } from '../toast/ToastContext';
 
 export function RecentBoards() {
+  const toast = useToast();
   const {
     result: recentBoards,
+    setResult: setRecentBoards,
     loading,
-    error
+    error,
   } = useApiCall({
-    call: window.electron.configApi.getRecentBoards
+    call: window.electron.configApi.getRecentBoards,
   });
+
+  const onRemove = useCallback((path: string) => {
+    window.electron.configApi
+      .removeRecentBoard(path)
+      .then(({ result, error }) => {
+        if (error !== null) {
+          toast.showError(error);
+        } else {
+          setRecentBoards(recentBoards?.filter((s) => s.path == result) ?? []);
+        }
+      });
+  }, []);
   if (loading) {
     return null;
   }
@@ -23,7 +39,7 @@ export function RecentBoards() {
     <div
       style={{
         minWidth: 800,
-        minHeight: 600
+        minHeight: 600,
       }}
     >
       <div className={'list-group border rounded overflow-auto h-100'}>
@@ -37,7 +53,9 @@ export function RecentBoards() {
             </div>
           </div>
         )}
-        {recentBoards.map((rb, ix) => <RecentBoardItem key={ix} board={rb} />)}
+        {recentBoards.map((rb, ix) => (
+          <RecentBoardItem key={ix} board={rb} removeBoard={onRemove} />
+        ))}
       </div>
       <div className={'d-flex flex-row-reverse'}>
         <Link className={'btn btn-primary'} to={'/edit/create'}>

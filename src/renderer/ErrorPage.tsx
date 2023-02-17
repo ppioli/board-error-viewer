@@ -1,6 +1,5 @@
 import { useNavigate } from 'react-router-dom';
 import { ApiError, ClientError } from '../model/ApiError';
-import classNames from 'classnames';
 import { isApiError } from '../util/utils';
 
 export interface ErrorPageProps {
@@ -9,7 +8,6 @@ export interface ErrorPageProps {
 
 export function ErrorPage({ error }: ErrorPageProps) {
   const navigate = useNavigate();
-  const apiError: boolean = isApiError(error);
   return (
     <div
       className={
@@ -40,9 +38,7 @@ function ApiErrorSection({ error }: { error: ApiError }) {
     <>
       <div>
         <div className={'mb-4'}>
-          <i
-            className={'display-1 bi-bug'}
-          ></i>
+          <i className={'display-1 bi-bug'}></i>
         </div>
       </div>
       <h3>The application has encountered an unexpected problem</h3>
@@ -69,16 +65,20 @@ function ClientErrorSection({ error }: { error: ClientError }) {
 
   return (
     <>
-      <div className={'card text-start mb-4'}>
-        <div className={'card-header'}>Details</div>
-        <div className="card-body pre">
-          <h5>Message</h5>
-          <div>{displayMessage}</div>
-          <hr />
-          <h5>Stack</h5>
-          <div className={'alert alert-dark mb-0'}>{stack}</div>
+      <div>
+        <div className={'mb-4'}>
+          <i className={'display-1 bi-exclamation-diamond'}></i>
+          <h3>{displayMessage}</h3>
         </div>
       </div>
+      {helpMessage && (
+      <div className={'card text-start mb-4'}>
+        <div className={'card-header'}>Help</div>
+        <div className="card-body pre">
+          {helpMessage}
+        </div>
+      </div>
+      )}
     </>
   );
 }

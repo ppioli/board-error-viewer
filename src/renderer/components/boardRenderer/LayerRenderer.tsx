@@ -1,7 +1,7 @@
-import { Layer } from '../model/Board';
-import { useCallback, useRef } from 'react';
-import { useSize } from './useSize';
-import { LogEntryLine } from '../model/LogEntry';
+import { Component, Layer } from '../../../model/Board';
+import { useCallback, useMemo, useRef } from 'react';
+import { useSize } from '../../useSize';
+import { LogEntryLine } from '../../../model/LogEntry';
 import { ComponentMarker } from './ComponentMarker';
 import QuickPinchZoom, { make3dTransformValue } from 'react-quick-pinch-zoom';
 
@@ -10,9 +10,11 @@ export interface BoardViewerProps {
   layer: Layer;
   log?: Map<string, LogEntryLine>;
   markerSize?: number;
+  filter?: (component: Component) => boolean;
+  showLabel?: boolean
 }
 
-export function LayerRenderer({ layer, title, log }: BoardViewerProps) {
+export function LayerRenderer({ layer, title, log, filter, showLabel = false }: BoardViewerProps) {
   const {
     image,
     offset,
@@ -42,6 +44,14 @@ export function LayerRenderer({ layer, title, log }: BoardViewerProps) {
       img.style.setProperty('transform', value);
     }
   }, []);
+
+  const filteredComponents = useMemo( () => {
+    if( filter == undefined) {
+      return components;
+    }
+
+    return components.filter(filter)
+  }, [components, filter])
   return (
     <QuickPinchZoom
       wheelScaleFactor={500}
@@ -98,7 +108,7 @@ export function LayerRenderer({ layer, title, log }: BoardViewerProps) {
               left: offset.x,
             }}
           >
-            {components.map((c, ix) => {
+            {filteredComponents.map((c, ix) => {
               const error = log?.get(c.id);
               const hasError = isErrorMode && error !== undefined;
               // If we have an error log, we only show error
@@ -111,6 +121,9 @@ export function LayerRenderer({ layer, title, log }: BoardViewerProps) {
                   component={c}
                   naturalScale={naturalScale}
                   scale={scale}
+                  flipX={flipX}
+                  flipY={flipY}
+                  showLabel={showLabel}
                   message={error ? JSON.stringify(error) : undefined}
                 />
               );

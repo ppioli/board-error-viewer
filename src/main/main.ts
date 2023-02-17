@@ -15,6 +15,7 @@ import MenuBuilder from './menu';
 import { registerFileApi } from '../main/registerFileApi';
 import { registerConfigApi } from '../main/registerConfigApi';
 import { URL } from 'url';
+import { registerExcelApi } from './registerExcelApi';
 
 export function resolveHtmlPath(htmlFileName: string) {
   if (process.env.NODE_ENV === 'development') {
@@ -117,6 +118,7 @@ const createWindow = async () => {
 
   registerFileApi(mainWindow);
   registerConfigApi(mainWindow);
+  registerExcelApi(mainWindow);
   // Remove this if your app does not use auto updates
 
   // eslint-disable-next-line

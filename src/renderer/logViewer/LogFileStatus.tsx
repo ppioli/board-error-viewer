@@ -1,8 +1,9 @@
 import { ReactNode } from 'react';
-import { LogFileParseResult } from '../model/LogFileParseResult';
+import { LogFileParseResult } from '../../model/LogFileParseResult';
+import { ApiError, ClientError } from '../../model/ApiError';
 
 export interface LogFileStatusProps {
-  error: Error | null;
+  error: ClientError | ApiError | null;
   log: LogFileParseResult | null;
 }
 
@@ -22,11 +23,11 @@ export function LogFileStatus({ error, log }: LogFileStatusProps) {
     );
   } else {
     content = (
-      <div className="alert alert-primary" role="alert">
+      <div className="alert alert-dark mb-0" role="alert">
         <h4 className="alert-heading">Model: {log?.entry?.model}</h4>
         <div className={'d-flex justify-content-between'}>
           <div>Status: {log?.entry?.status}</div>
-          <div className="mb-0 text-muted text-right">{log?.entry?.date}</div>
+          <div className="mb-0 text-right">{log?.entry?.date}</div>
         </div>
       </div>
     );

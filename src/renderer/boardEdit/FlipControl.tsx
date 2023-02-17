@@ -19,14 +19,14 @@ export function FlipControl({ name }: { name: string }) {
         type={'button'}
         onClick={() => setX(-x)}
       >
-        Flip X
+        <i className="bi bi-symmetry-vertical"></i>
       </button>
       <button
         className={'btn btn-primary'}
         type={'button'}
         onClick={() => setY(-y)}
       >
-        Flip Y
+        <i className="bi bi-symmetry-horizontal"></i>
       </button>
     </>
   );

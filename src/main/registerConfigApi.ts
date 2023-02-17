@@ -67,6 +67,14 @@ export function registerConfigApi(window: BrowserWindow) {
       return apiErrorResult(error);
     }
   });
+  ipcMain.handle(ConfigApiChannels.RecentBoardRemove, async (_, path: string) => {
+    try {
+      await updateRecentBoards({ path, name: '' }, true);
+      return okResult(path);
+    } catch (error: any) {
+      return apiErrorResult(error);
+    }
+  });
   ipcMain.handle(ConfigApiChannels.RecentBoards, async (event: any) => {
     try {
       const files = await readRecentBoardFile();

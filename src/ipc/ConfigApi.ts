@@ -7,12 +7,14 @@ export enum ConfigApiChannels {
   ConfigGet = 'ConfigGet',
   ConfigUpdate = 'ConfigUpdate',
   RecentBoards = 'RecentBoards',
+  RecentBoardRemove = 'recent-board-remove',
 }
 
 export interface ConfigApi {
   getConfig(): Promise<ApiResult<Config>>;
   getRecentBoards(): Promise<ApiResult<RecentBoard[]>>;
   updateConfig(config: Config): Promise<Error | null>;
+  removeRecentBoard(path: string): Promise<ApiResult<string>>
 }
 
 export const configApiHandler: ConfigApi = {
@@ -24,5 +26,8 @@ export const configApiHandler: ConfigApi = {
   },
   updateConfig(config: Config): Promise<Error | null> {
     return ipcRenderer.invoke(ConfigApiChannels.ConfigUpdate, config);
+  },
+  removeRecentBoard(path: string): Promise<ApiResult<string>> {
+    return ipcRenderer.invoke(ConfigApiChannels.RecentBoardRemove, path)
   },
 };

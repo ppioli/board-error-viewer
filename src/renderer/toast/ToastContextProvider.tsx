@@ -2,6 +2,8 @@ import { ReactNode, useCallback, useMemo, useState } from 'react';
 import { ToastMessage } from '../../model/ToastMessage';
 import { Toast } from './Toast';
 import { ToastContext, ToastContextOpts } from './ToastContext';
+import { ApiError, ClientError } from '../../model/ApiError';
+import { isApiError } from '../../util/utils';
 
 export interface ToastContainerProps {
   children: ReactNode;
@@ -17,6 +19,19 @@ export function ToastContextProvider({ children }: ToastContainerProps) {
     return {
       showMessage: (message: ToastMessage) => {
         setToast(message);
+      },
+      showError(error: ApiError | ClientError) {
+        if( isApiError(error)){
+          setToast({
+           title: 'An unexpected error occurred',
+            message: error.message
+          })
+        } else {
+          setToast({
+            title: 'Error',
+            message: error.displayMessage,
+          })
+        }
       },
     } as ToastContextOpts;
   }, []);

@@ -30,21 +30,21 @@ export interface Vector {
 }
 
 export const defaultVector: Vector = { x: 0, y: 0 };
-export const defaultLayer: Layer = {
+export const defaultLayer: () => Layer = () => ({
   components: [],
   image: null,
   scale: { x: 1, y: 1 },
   flip: { x: 1, y: 1 },
   rotation: 0,
   offset: defaultVector,
-};
-export const defaultBoard: Board = {
+});
+export const defaultBoard: () => Board = () => ({
   name: '',
   layerBottom: null,
-  layerTop: defaultLayer,
-};
+  layerTop: defaultLayer(),
+});
 
-export const defaultComponent: Component = {
+export const defaultComponent: () => Component = () => ({
   position: defaultVector,
   id: '',
-};
+});

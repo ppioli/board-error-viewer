@@ -1,6 +1,5 @@
-import { LogEntry } from 'model/LogEntry';
 import classNames from 'classnames';
-import { LogFile } from '../model/LogFile';
+import { LogFile } from '../../model/LogFile';
 
 export interface LogEntryListItemProps {
   file: LogFile
