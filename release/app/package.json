@@ -1,12 +1,12 @@
 {
-  "name": "electron-react-boilerplate",
-  "version": "0.9.0",
-  "description": "A foundation for scalable desktop apps",
+  "name": "board-error-viewer",
+  "version": "0.9.1",
+  "description": "A foundation for board error viewing",
   "license": "MIT",
   "author": {
-    "name": "Electron React Boilerplate Maintainers",
-    "email": "electronreactboilerplate@gmail.com",
-    "url": "https://github.com/electron-react-boilerplate"
+    "name": "Pablo Pioli",
+    "email": "pablopioli@gmail.com",
+    "url": "https://github.com/ppioli/board-error-viewer"
   },
   "main": "./dist/main/main.js",
   "scripts": {

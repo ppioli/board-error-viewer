@@ -124,6 +124,24 @@ export const registerFileApi = (window: BrowserWindow) => {
   ipcMain.handle(FileApiChannels.ReportOpen, (event: any, path: string) =>
     reportOpen(path)
   );
+  ipcMain.on(FileApiChannels.ReportOpenFromFile, async () => {
+    logger.info("Called open log file")
+    const selection = await dialog.showOpenDialog(_window!, {
+      title: 'Select a log file',
+    });
+    if (selection.canceled || selection.filePaths.length == 0) {
+      return null;
+    }
+    const path = selection.filePaths[0];
+    const stats = await fs.stat(path);
+    const file: LogFile = {
+      date: stats?.birthtime,
+      path,
+      fileName: libpath.basename(path),
+    };
+    logger.info(file)
+    _window?.webContents.send(FileApiChannels.ReportPickUp, file);
+  });
   ipcMain.handle(FileApiChannels.DirectoryPicker, () => {
     return dialog
       .showOpenDialog(_window!, {

@@ -22,7 +22,7 @@ export function BoardRenderer({
   container = {},
 }: BoardRendererProps) {
   // TODO Handle id repetition
-  const { name, layerTop, layerBottom } = board ?? {};
+  const { layerTop, layerBottom } = board ?? {};
   return (
     <div {...container}>
       <div
@@ -43,18 +43,16 @@ export function BoardRenderer({
             <BoardPlaceholder />
           )}
         </div>
-        <div style={{ flex: 1 }} className={'p-3 border border-dark'}>
-          {layerBottom ? (
+        {layerBottom && (
+          <div style={{ flex: 1 }} className={'p-3 border border-dark'}>
             <LayerRenderer
               title={'Layer bottom'}
               layer={layerBottom}
               filter={filter}
               showLabel={showLabel}
             />
-          ) : (
-            <BoardPlaceholder />
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -5,8 +5,6 @@ import { LogFile } from '../model/LogFile';
 import { ApiResult } from '../model/ApiResult';
 import { Config } from '../model/Config';
 
-export const ConfigDirNotSet = 'ConfigFileNotSet';
-
 export enum FileApiChannels {
   WatchStart = 'watch-start',
   WatchStop = 'watch-stop',
@@ -14,16 +12,25 @@ export enum FileApiChannels {
   BoardOpen = 'board-open',
   BoardSave = 'board-save',
   ReportOpen = 'report-open',
+  ReportOpenFromFile = 'report-open-from-file',
   DirectoryPicker = 'directory-picker',
 }
 
 export interface FileApi {
   watchStart(): Promise<ApiResult<Config>>;
+
   watchEnd(): void;
+
   onReportPickup(callback: (event: any, result: LogFile) => void): void;
+
   openReport(path: string): Promise<ApiResult<LogFileParseResult>>;
+
   boardSave(board: Board): Promise<ApiResult<string>>;
+
   boardOpen(path: string): Promise<ApiResult<Board>>;
+
+  reportOpenFromFile(): void;
+
   showDirectoryPicker(): Promise<string | null>;
 }
 
@@ -42,6 +49,8 @@ export const fileApiHandler: FileApi = {
   openReport(path: string): Promise<ApiResult<LogFileParseResult>> {
     return ipcRenderer.invoke(FileApiChannels.ReportOpen, path);
   },
+  reportOpenFromFile: () =>
+    ipcRenderer.send(FileApiChannels.ReportOpenFromFile),
   showDirectoryPicker(): Promise<string | null> {
     return ipcRenderer.invoke(FileApiChannels.DirectoryPicker);
   },

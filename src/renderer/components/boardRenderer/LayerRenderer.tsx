@@ -1,20 +1,26 @@
 import { Component, Layer } from '../../../model/Board';
 import { useCallback, useMemo, useRef } from 'react';
 import { useSize } from '../../useSize';
-import { LogEntryLine } from '../../../model/LogEntry';
-import { ComponentMarker } from './ComponentMarker';
 import QuickPinchZoom, { make3dTransformValue } from 'react-quick-pinch-zoom';
+import { ComponentMarker } from './ComponentMarker';
+import _ from 'lodash';
+import classNames from 'classnames';
 
-export interface BoardViewerProps {
+export interface BoardRendererProps {
   title: string;
   layer: Layer;
-  log?: Map<string, LogEntryLine>;
   markerSize?: number;
   filter?: (component: Component) => boolean;
-  showLabel?: boolean
+  showLabel?: boolean;
 }
 
-export function LayerRenderer({ layer, title, log, filter, showLabel = false }: BoardViewerProps) {
+export function LayerRenderer({
+  layer,
+  title,
+  filter,
+  showLabel = false,
+}: BoardRendererProps) {
+  console.log(layer);
   const {
     image,
     offset,
@@ -25,33 +31,45 @@ export function LayerRenderer({ layer, title, log, filter, showLabel = false }: 
   } = layer;
   const containerRef = useRef<HTMLDivElement | null>(null);
   // if we get a list of errors, we will display only components with errors
-  const isErrorMode = log !== undefined;
+  let height = 100,
+    width = 100;
+  if (image) {
+    width = image.width;
+    height = image.height;
+  } else {
+    const maxX = _.maxBy(components, (c) => c.position.x)?.position.x;
+    const maxY = _.maxBy(components, (c) => c.position.y)?.position.y;
+    // TODO breaks when deleting an image when there are components
+    if (maxX && maxY) {
+      width = maxX;
+      height = maxY;
+    }
+  }
   const {
     offsetX: naturalOffsetX,
     offsetY: naturalOffsetY,
     scale: naturalScale,
   } = useSize({
     containerRef,
-    imageWidth: image?.width,
-    imageHeight: image?.height,
+    imageWidth: width,
+    imageHeight: height,
   });
   const onUpdate = useCallback(({ x, y, scale }: any) => {
     const { current: img } = containerRef;
 
     if (img) {
       const value = make3dTransformValue({ x, y, scale });
-
       img.style.setProperty('transform', value);
     }
   }, []);
 
-  const filteredComponents = useMemo( () => {
-    if( filter == undefined) {
+  const filteredComponents = useMemo(() => {
+    if (filter == undefined) {
       return components;
     }
 
-    return components.filter(filter)
-  }, [components, filter])
+    return components.filter(filter);
+  }, [components, filter]);
   return (
     <QuickPinchZoom
       wheelScaleFactor={500}
@@ -80,42 +98,58 @@ export function LayerRenderer({ layer, title, log, filter, showLabel = false }: 
             top: naturalOffsetY,
           }}
         >
-          {image && (
-            <div
-              style={{
-                position: 'relative',
-                transformOrigin: 'center',
-              }}
-            >
+          <div
+            style={{
+              position: 'relative',
+              transformOrigin: 'center',
+            }}
+          >
+            {image ? (
               <img
                 alt={'board'}
                 src={image.data}
                 style={{
                   position: 'absolute',
-                  width: image.width * naturalScale,
-                  height: image.height * naturalScale,
+                  width: width * naturalScale,
+                  height: height * naturalScale,
                 }}
               />
-            </div>
-          )}
+            ) : (
+              <div
+                className={
+                  'd-flex justify-content-around flex-column text-center'
+                }
+                style={{
+                  position: 'absolute',
+                  width: width * naturalScale,
+                  height: height * naturalScale,
+                  opacity: 0.5,
+                }}
+              >
+                <div>
+                  <h1>{title}</h1>
+                  <h4>No image</h4>
+                </div>
+              </div>
+            )}
+          </div>
           <div
+            className={classNames({
+              border: image == null,
+              'border-primary': image == null,
+            })}
             style={{
               transform: `scale(${flipX}, ${flipY}) rotate(${rotation}deg)`,
-              width: (image?.width ?? 0) * naturalScale,
-              height: (image?.height ?? 0) * naturalScale,
+              width: width * naturalScale,
+              height: height * naturalScale,
               position: 'relative',
+              background: image == null ? '#ababab0f' : undefined,
+              borderRadius: '8px',
               top: offset.y,
               left: offset.x,
             }}
           >
             {filteredComponents.map((c, ix) => {
-              const error = log?.get(c.id);
-              const hasError = isErrorMode && error !== undefined;
-              // If we have an error log, we only show error
-              if (isErrorMode && !hasError) {
-                return null;
-              }
-
               return (
                 <ComponentMarker
                   component={c}
@@ -124,7 +158,6 @@ export function LayerRenderer({ layer, title, log, filter, showLabel = false }: 
                   flipX={flipX}
                   flipY={flipY}
                   showLabel={showLabel}
-                  message={error ? JSON.stringify(error) : undefined}
                 />
               );
             })}

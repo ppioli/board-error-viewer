@@ -40,6 +40,8 @@ export function LogFileViewer({
     },
     [log]
   );
+
+
   if (loading) {
     return null;
   }

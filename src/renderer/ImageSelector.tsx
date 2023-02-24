@@ -12,10 +12,9 @@ export function ImageSelector({ name }: ImageSelectorProps) {
   } = useController({
     name,
   });
-  const hasImage = value && value.length > 0;
   const filePickerRef = useRef<HTMLInputElement | null>(null);
   const updateImage = (event: ChangeEvent<any>) => {
-    //todo weird behaviour when selecting the same image
+    // TODO weird behaviour when selecting the same image
     const { files } = event.target;
     if (files.length === 0) {
       return;
@@ -30,7 +29,6 @@ export function ImageSelector({ name }: ImageSelectorProps) {
           height: img.height,
           data: reader.result!.toString(),
         };
-        console.log(result);
         onChange(result);
       };
       img.src = reader.result!.toString();
@@ -43,18 +41,18 @@ export function ImageSelector({ name }: ImageSelectorProps) {
       <div>
         <button
           type={'button'}
-          className={'btn btn-secondary'}
+          className={'btn btn-primary'}
           onClick={() => filePickerRef.current!.click()}
         >
-          {hasImage ? 'Change image' : 'Select image'}
+          {value !== null ? 'Change image' : 'Select image'}
         </button>
-        <button
+        { value !== null && <button
           type={'button'}
-          className={'btn btn-secondary'}
-          onClick={() => onChange('')}
+          className={'btn btn-danger'}
+          onClick={() => onChange(null)}
         >
           Delete
-        </button>
+        </button>}
       </div>
       <input
         className={'d-none'}

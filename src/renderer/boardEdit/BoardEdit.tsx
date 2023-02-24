@@ -23,10 +23,10 @@ export function BoardForm({ board, onChange }: BoardFormProps) {
     resolver: yupResolver(boardSchema),
     reValidateMode: 'onChange',
   });
-  const { register, handleSubmit, watch, setValue, reset } = formMethods;
+  const { register, handleSubmit, watch, reset } = formMethods;
   const [selectedTab, setSelectedTab] = useState<SelectedLayer>('Top');
   useEffect(() => {
-    const subscription = watch((value, info) => {
+    const subscription = watch((value) => {
       if (value) {
         onChange(value as Board);
       }
@@ -46,26 +46,26 @@ export function BoardForm({ board, onChange }: BoardFormProps) {
   };
 
   const onExcelLoad = useCallback((board: Board) => {
-    reset(board)
+    reset(board);
   }, []);
   return (
     <FormProvider {...formMethods}>
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className={'card vh-100'}>
-          <div className={'card-header h4'}>Edit board</div>
-          <div className={'card-body'} style={{ overflowY: 'scroll' }}>
-            <div style={{ width: '100%' }}>
-              <div className={'row g-3'}>
-                <div className={'col-12'}>
-                  <label>Name</label>
-                  <input
-                    type={'text'}
-                    {...register('name')}
-                    className={'form-control'}
-                  />
-                </div>
-                <ExcelImporter onLoad={onExcelLoad} />
-                <div className={'col-12'}>
+          <div className={'card-body d-flex flex-column'}>
+            <div className={'row mb-3'}>
+              <div className={'col-12'}>
+                <label>Name</label>
+                <input
+                  type={'text'}
+                  {...register('name')}
+                  className={'form-control'}
+                />
+              </div>
+            </div>
+            <div className={'row'}>
+              <div className={'col-12'}>
+                <div className={'border-bottom d-flex justify-content-between mb-3'}>
                   <ul className="nav nav-tabs">
                     <li className="nav-item">
                       <button
@@ -90,13 +90,16 @@ export function BoardForm({ board, onChange }: BoardFormProps) {
                       </button>
                     </li>
                   </ul>
+                  <ExcelImporter onLoad={onExcelLoad} />
                 </div>
+              </div>
+            </div>
+            <div className={'row flex-fill'}>
+              <div className={'col-12'}>
                 {selectedTab === 'Top' ? (
                   <LayerEdit name={'layerTop'} />
                 ) : (
-                  <>
-                    <LayerToggle name={'layerBottom'} />
-                  </>
+                  <LayerToggle name={'layerBottom'} />
                 )}
               </div>
             </div>
@@ -105,7 +108,11 @@ export function BoardForm({ board, onChange }: BoardFormProps) {
             <button className={'btn btn-primary'} type={'submit'}>
               Save...
             </button>
-            <button className={'btn btn-link'} type={'button'} onClick={() => navigate("/")}>
+            <button
+              className={'btn btn-link'}
+              type={'button'}
+              onClick={() => navigate('/')}
+            >
               Cancel
             </button>
           </div>

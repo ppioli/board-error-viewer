@@ -13,12 +13,11 @@ export function LayerToggle({ name }: LayerToggleProps) {
   });
 
   const handleToggleChange = (event: ChangeEvent<HTMLInputElement>) => {
-    console.log(event.target.checked);
-    onChange(event.target.checked ? defaultLayer : null);
+    onChange(event.target.checked ? defaultLayer() : null);
   };
 
   return (
-    <div className={'col-12'}>
+    <div style={{height: '100%'}} className={'d-flex flex-column'}>
       <div className="form-check form-switch">
         <input
           className="form-check-input"

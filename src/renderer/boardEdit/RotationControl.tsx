@@ -16,7 +16,7 @@ export function RotationControl({ name }: { name: string }) {
   return (
     <>
       <button
-        className={'btn btn-primary'}
+        className={'btn btn-primary btn-block'}
         type={'button'}
         onClick={() => handleChange(-90)}
       >

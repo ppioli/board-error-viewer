@@ -3,3 +3,39 @@
 @import "~bootswatch/dist/superhero/bootswatch";
 @import "~bootstrap/scss/bootstrap";
 @import '~bootstrap-icons/font/bootstrap-icons.css';
+
+*::-webkit-scrollbar {
+  display: block;
+  width: 12px;
+}
+
+*::-webkit-scrollbar-button {
+  display: none;
+}
+
+*::-webkit-scrollbar-track {
+  background-color: #00000000;
+}
+
+*::-webkit-scrollbar-track-piece {
+  background-color: #00000000;
+}
+
+* {
+  --scrollbar-color: #00000000;
+}
+
+*:hover, *:focus, *:focus-within {
+  --scrollbar-color: #00000040 !important;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: var(--scrollbar-color);
+  border: 1px solid transparent;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background-color: var(--scrollbar-color);
+  border: 0 solid transparent;
+  box-shadow: none;
+}

@@ -22,30 +22,47 @@ export function LogViewerPage() {
   const handleSelect = useCallback((log: LogFile) => {
     setSelectedLog(log);
   }, []);
+  const openFromFile = () => {
+    console.log("whut")
+    window.electron.fileApi.reportOpenFromFile()
+  }
   if (loading) {
     return null;
   }
   if (!board) {
-    console.log(error)
+    console.log(error);
     return <ErrorPage error={error!} />;
   }
   return (
     <div className={'vh-100 d-flex flex-column'}>
       <div className={'d-flex flex-fill align-items-stretch'}>
         <div className={'w-25 card bg-dark text-white'}>
-          <div className={'card-header d-flex justify-content-between align-items-center'}>
+          <div
+            className={
+              'card-header d-flex justify-content-between align-items-center'
+            }
+          >
             <div>{board.name}</div>
-            <Link to={`/edit/${encodeURIComponent(path!)}`} className={'btn btn-link'}>
+            <Link
+              to={`/edit/${encodeURIComponent(path!)}`}
+              className={'btn btn-link'}
+            >
               Editar
             </Link>
           </div>
           <ErrorLogsList onSelect={handleSelect} />
-          <div className={'card-footer'}>
-           This is a placeholder
+          <div className={'card-footer d-flex flex-row-reverse'}>
+            <button
+              className={'btn btn-link'}
+              type={'button'}
+              onClick={openFromFile}
+            >
+              Open
+            </button>{' '}
           </div>
         </div>
         <div className={'w-75'}>
-          <LogFileViewer board={board} logPath={selectedLog?.path}/>
+          <LogFileViewer board={board} logPath={selectedLog?.path} />
         </div>
       </div>
     </div>

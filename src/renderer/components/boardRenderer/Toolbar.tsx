@@ -12,7 +12,7 @@ export interface ToolbarProps {
 
 export function Toolbar({ layout, showLabels, onLayoutChange, onFilterChange, onLabelChange }: ToolbarProps) {
   return (
-    <div style={{ position: 'relative', zIndex: 5000 }}>
+    <div style={{ position: 'relative', zIndex: 1000 }}>
       <div
         style={{
           position: 'absolute',
