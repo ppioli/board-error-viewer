@@ -1,10 +1,16 @@
 import { useForm } from 'react-hook-form';
-import { Config, GetSupportedEncoding } from 'model/Config';
-import { object, mixed, SchemaOf, string } from 'yup';
+import {
+  Config,
+  GetSupportedEncoding,
+  supportedLanguagesLabels,
+  supportedLanguagesValues,
+} from 'model/Config';
+import { mixed, object, SchemaOf, string } from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '../toast/ToastContext';
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export interface ConfigEditProps {
   config: Config;
@@ -17,15 +23,22 @@ const configSchema: SchemaOf<Config> = object().shape({
     .transform((val) => val as BufferEncoding),
   watchDir: string().required(),
   extension: string().optional(),
+  language: mixed().oneOf(supportedLanguagesValues()).optional(),
 });
 
 export function ConfigEdit({ config }: ConfigEditProps) {
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const { showMessage } = useToast();
   useEffect(() => {}, []);
-  const { handleSubmit, setValue, register } = useForm({
+  const { handleSubmit, setValue, register, watch } = useForm({
     defaultValues: config,
     resolver: yupResolver(configSchema),
+  });
+  watch((data, { name, type }) => {
+    if(type === 'change' && name === 'language'){
+      i18n.changeLanguage(data['language'])
+    }
   });
 
   const onSubmit = (config: Config) => {
@@ -56,7 +69,9 @@ export function ConfigEdit({ config }: ConfigEditProps) {
         <div className={'card-body'}>
           <div className={'row'}>
             <div className={'col-12'}>
-              <label className={'form-label'}>Working dir</label>
+              <label className={'form-label'}>
+                {t('configEdit.workingDir')}
+              </label>
               <div className={'d-flex'}>
                 <input
                   className={'form-control'}
@@ -64,13 +79,19 @@ export function ConfigEdit({ config }: ConfigEditProps) {
                   readOnly={true}
                   {...register('watchDir')}
                 />
-                <button className={'btn btn-primary'} type={'button'} onClick={handleDirSelect}>
-                  Select
+                <button
+                  className={'btn btn-primary'}
+                  type={'button'}
+                  onClick={handleDirSelect}
+                >
+                  {t('form.select')}
                 </button>
               </div>
             </div>
             <div className={'col-12'}>
-              <label className={'form-label'}>File encoding</label>
+              <label className={'form-label'}>
+                {t('configEdit.fileEncoding')}
+              </label>
               <div className={'d-flex'}>
                 <input
                   className={'form-control'}
@@ -81,13 +102,25 @@ export function ConfigEdit({ config }: ConfigEditProps) {
               </div>
             </div>
             <div className={'col-12'}>
-              <label className={'form-label'}>File extension</label>
+              <label className={'form-label'}>
+                {t('configEdit.fileExtension')}
+              </label>
               <div className={'d-flex'}>
                 <input
                   className={'form-control'}
                   type={'text'}
                   {...register('extension')}
                 />
+              </div>
+            </div>
+            <div className={'col-12'}>
+              <label className={'form-label'}>{t('configEdit.language')}</label>
+              <div className={'d-flex'}>
+                <select className={'form-control'} {...register('language')}>
+                  {supportedLanguagesValues().map((v) => (
+                    <option value={v}>{supportedLanguagesLabels(v)}</option>
+                  ))}
+                </select>
               </div>
             </div>
           </div>
@@ -98,10 +131,10 @@ export function ConfigEdit({ config }: ConfigEditProps) {
             type={'button'}
             className={'btn btn-secondary'}
           >
-            Cancelar
+            {t('form.cancel')}
           </button>
           <button type={'submit'} className={'btn btn-primary'}>
-            Save
+            {t('form.save')}
           </button>
         </div>
       </div>

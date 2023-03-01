@@ -8,6 +8,7 @@ import { LayerToggle } from 'renderer/components/boardRenderer/LayerToggle';
 import { useNavigate } from 'react-router-dom';
 import { boardSchema } from '../../model/schema';
 import { ExcelImporter } from './ExcelImporter';
+import { useTranslation } from 'react-i18next';
 
 type SelectedLayer = 'Top' | 'Bottom';
 
@@ -18,6 +19,7 @@ export interface BoardFormProps {
 
 export function BoardForm({ board, onChange }: BoardFormProps) {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const formMethods = useForm<Board>({
     defaultValues: board,
     resolver: yupResolver(boardSchema),
@@ -106,14 +108,14 @@ export function BoardForm({ board, onChange }: BoardFormProps) {
           </div>
           <div className="card-footer flex-row-reverse d-flex">
             <button className={'btn btn-primary'} type={'submit'}>
-              Save...
+              {t('form.save')}...
             </button>
             <button
               className={'btn btn-link'}
               type={'button'}
               onClick={() => navigate('/')}
             >
-              Cancel
+              {t('form.cancel')}
             </button>
           </div>
         </div>

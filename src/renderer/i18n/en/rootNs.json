@@ -1,0 +1,13 @@
+{
+  "form": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "select": "Select"
+  },
+  "configEdit": {
+    "language": "Language",
+    "fileExtension": "File extension",
+    "fileEncoding": "File encoding",
+    "workingDir": "Log's directory"
+  }
+}

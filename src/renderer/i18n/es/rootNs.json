@@ -1,0 +1,13 @@
+{
+  "form": {
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "select": "Seleccionar"
+  },
+  "configEdit": {
+    "language": "Idioma",
+    "fileExtension": "Extensión de archivo",
+    "fileEncoding": "Codificación de archivo",
+    "workingDir": "Directorio de reportes"
+  }
+}

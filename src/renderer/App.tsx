@@ -1,5 +1,6 @@
 import { MemoryRouter as Router, Route, Routes } from 'react-router-dom';
 import './App.scss';
+import './i18n/config';
 import { BoardEditPage } from 'renderer/boardEdit/BoardEditPage';
 import { LogViewerPage } from 'renderer/logViewer/LogViewerPage';
 import { ConfigEditPage } from 'renderer/config/ConfigEditPage';
