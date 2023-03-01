@@ -30,6 +30,7 @@ export interface Config {
   watchDir: string | null;
   encoding: BufferEncoding;
   extension?: string;
+  persistent?: boolean;
   language?: SupportedLanguages;
 }
 

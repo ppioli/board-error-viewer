@@ -1,71 +1,33 @@
-import { Link, useParams } from 'react-router-dom';
-import { useCallback, useState } from 'react';
-import { useApiCall } from '../useApiCall';
 import { ErrorPage } from '../ErrorPage';
-import { LogFile } from '../../model/LogFile';
-import { ErrorLogsList } from './ErrorLogsList';
+import { ErrorLogsList } from '../logErrorList/ErrorLogsList';
 import { LogFileViewer } from './LogFileViewer';
+import { LogFileStatus } from './LogFileStatus';
+import { useAppSelector } from '../store';
+import { stat } from 'fs';
 
 export function LogViewerPage() {
-  const { path } = useParams();
-  const [selectedLog, setSelectedLog] = useState<LogFile | null>(null);
-  const call = useCallback(() => {
-    return window.electron.fileApi.boardOpen(path!);
-  }, [path]);
-  const {
-    result: board,
-    error,
-    loading,
-  } = useApiCall({
-    call,
-  });
-  const handleSelect = useCallback((log: LogFile) => {
-    setSelectedLog(log);
-  }, []);
-  const openFromFile = () => {
-    console.log("whut")
-    window.electron.fileApi.reportOpenFromFile()
-  }
-  if (loading) {
+  const { board, status, error } = useAppSelector((state) => state.board);
+  if (status === 'LOADING') {
     return null;
   }
-  if (!board) {
-    console.log(error);
+  if (status === 'ERROR') {
     return <ErrorPage error={error!} />;
   }
   return (
     <div className={'vh-100 d-flex flex-column'}>
-      <div className={'d-flex flex-fill align-items-stretch'}>
-        <div className={'w-25 card bg-dark text-white'}>
-          <div
-            className={
-              'card-header d-flex justify-content-between align-items-center'
-            }
-          >
-            <div>{board.name}</div>
-            <Link
-              to={`/edit/${encodeURIComponent(path!)}`}
-              className={'btn btn-link'}
-            >
-              Editar
-            </Link>
+      <div className={'d-flex h-100 align-items-stretch'}>
+        <div className={'w-25 d-flex flex-column'}>
+          <div className={'h-50'}>
+            <ErrorLogsList />
           </div>
-          <ErrorLogsList onSelect={handleSelect} />
-          <div className={'card-footer d-flex flex-row-reverse'}>
-            <button
-              className={'btn btn-link'}
-              type={'button'}
-              onClick={openFromFile}
-            >
-              Open
-            </button>{' '}
+          <div className={'h-50'}>
+            <LogFileStatus />
           </div>
         </div>
         <div className={'w-75'}>
-          <LogFileViewer board={board} logPath={selectedLog?.path} />
+          <LogFileViewer board={board} />
         </div>
       </div>
     </div>
   );
 }
-

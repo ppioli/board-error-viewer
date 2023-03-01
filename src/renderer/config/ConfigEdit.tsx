@@ -5,7 +5,7 @@ import {
   supportedLanguagesLabels,
   supportedLanguagesValues,
 } from 'model/Config';
-import { mixed, object, SchemaOf, string } from 'yup';
+import { mixed, object, SchemaOf, string, boolean } from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '../toast/ToastContext';
@@ -24,6 +24,7 @@ const configSchema: SchemaOf<Config> = object().shape({
   watchDir: string().required(),
   extension: string().optional(),
   language: mixed().oneOf(supportedLanguagesValues()).optional(),
+  persistent: boolean().optional(),
 });
 
 export function ConfigEdit({ config }: ConfigEditProps) {
@@ -111,6 +112,25 @@ export function ConfigEdit({ config }: ConfigEditProps) {
                   type={'text'}
                   {...register('extension')}
                 />
+              </div>
+            </div>
+            <div className={'col-12'}>
+              <div className={'d-flex'}>
+                <div className="form-check form-switch">
+                  <input
+                    className="form-check-input"
+                    type="checkbox"
+                    role="switch"
+                    id="flexSwitchCheckDefault"
+                    {...register('persistent')}
+                  />
+                  <label
+                    className="form-check-label"
+                    htmlFor="flexSwitchCheckDefault"
+                  >
+                    Persistent
+                  </label>
+                </div>
               </div>
             </div>
             <div className={'col-12'}>

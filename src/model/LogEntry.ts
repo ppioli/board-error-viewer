@@ -2,7 +2,7 @@ export interface LogEntry {
   status: string;
   date: string;
   model: string;
-  errors: LogEntryLine[];
+  lines: LogEntryLine[];
 }
 
 export interface LogEntryLine {
@@ -11,4 +11,8 @@ export interface LogEntryLine {
   valueA: string;
   valueB: string;
   valueC: string;
+
+  testPointA: string;
+
+  testPointB: string;
 }

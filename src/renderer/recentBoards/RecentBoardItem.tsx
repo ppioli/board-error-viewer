@@ -2,29 +2,34 @@ import { useNavigate } from 'react-router-dom';
 import { RecentBoard } from '../../model/RecentBoard';
 import { MouseEventHandler, useState } from 'react';
 import classNames from 'classnames';
+import { useAppDispatch } from '../store';
+import { removeRecentBoard } from './recentBoardSlice';
+import { loadBoardThunk } from '../boardEdit/boardSlice';
 interface RecentBoardItemProps {
-  board: RecentBoard,
-  removeBoard: (path: string) => void;
+  board: RecentBoard;
 }
-export function RecentBoardItem( {board, removeBoard} : RecentBoardItemProps) {
+export function RecentBoardItem({ board }: RecentBoardItemProps) {
   const navigate = useNavigate();
-  const [active, setActive] = useState(false)
+  const [active, setActive] = useState(false);
+  const dispatch = useAppDispatch();
   const openBoard = (path: string) => {
-    navigate('/analysis/' + encodeURIComponent(path));
+    dispatch(loadBoardThunk(path));
+    navigate('/analysis');
   };
 
   const handleMouseOver: MouseEventHandler<HTMLDivElement> = (event) => {
-    if( event.type === 'mouseleave'){
-      setActive(false)
-    } else if ( event.type === 'mouseenter'){
-      setActive(true)
+    if (event.type === 'mouseleave') {
+      setActive(false);
+    } else if (event.type === 'mouseenter') {
+      setActive(true);
     }
-  }
+  };
 
-  const onRemove: MouseEventHandler<HTMLButtonElement> = ( event ) => {
+  const onRemove: MouseEventHandler<HTMLButtonElement> = (event) => {
     event.stopPropagation();
-    removeBoard(board.path);
-  }
+    dispatch(removeRecentBoard(board.path));
+  };
+
   const boardAvailable = board.name !== null;
   return (
     <div
@@ -35,12 +40,22 @@ export function RecentBoardItem( {board, removeBoard} : RecentBoardItemProps) {
       onClick={() => openBoard(board.path)}
     >
       <div className={'flex-fill'}>
-        <div className={'h4'}>{boardAvailable ?board.name : "<Board Not Found>"}</div>
-        <div className={'text-muted'}>{boardAvailable ? board.path : `Board saved file is missing (Maybe it was moved or deleted?)`}</div>
+        <div className={'h4'}>
+          {boardAvailable ? board.name : '<Board Not Found>'}
+        </div>
+        <div className={'text-muted'}>
+          {boardAvailable
+            ? board.path
+            : `Board saved file is missing (Maybe it was moved or deleted?)`}
+        </div>
       </div>
-      <button type={'button'} onClick={onRemove} className={classNames('btn btn-danger', {
-        'invisible': !active
-      })}>
+      <button
+        type={'button'}
+        onClick={onRemove}
+        className={classNames('btn btn-danger', {
+          invisible: !active,
+        })}
+      >
         <i className={'bi-trash'}></i>
       </button>
     </div>

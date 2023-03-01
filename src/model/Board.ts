@@ -2,6 +2,8 @@ export interface Board {
   name: string;
   layerTop: Layer;
   layerBottom: Layer | null;
+  markerSize: number;
+  markerColor: string;
 }
 
 export interface Image {
@@ -29,7 +31,7 @@ export interface Vector {
   y: number;
 }
 
-export const defaultVector: () => Vector = () => ( { x: 0, y: 0 } );
+export const defaultVector: () => Vector = () => ({ x: 0, y: 0 });
 export const defaultLayer: () => Layer = () => ({
   components: [],
   image: null,
@@ -42,6 +44,8 @@ export const defaultBoard: () => Board = () => ({
   name: '',
   layerBottom: null,
   layerTop: defaultLayer(),
+  markerColor: '#ff0000',
+  markerSize: 10,
 });
 
 export const defaultComponent: () => Component = () => ({

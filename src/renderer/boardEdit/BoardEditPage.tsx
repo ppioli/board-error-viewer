@@ -2,7 +2,6 @@ import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { Board, defaultBoard } from 'model/Board';
 import { BoardForm } from 'renderer/boardEdit/BoardEdit';
-import { BoardRenderer } from '../components/boardRenderer/BoardRenderer';
 import { BoardEditPreview } from '../components/boardRenderer/BoardEditPreview';
 
 export function BoardEditPage() {
@@ -28,7 +27,7 @@ export function BoardEditPage() {
         <BoardForm board={board} onChange={setBoard} />
       </div>
       <div className={'flex-fill'}>
-        <BoardEditPreview board={board}/>
+        <BoardEditPreview board={board} />
       </div>
     </div>
   );

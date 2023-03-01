@@ -9,6 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import { boardSchema } from '../../model/schema';
 import { ExcelImporter } from './ExcelImporter';
 import { useTranslation } from 'react-i18next';
+import { ColorPicker } from '../components/ColorPicker';
 
 type SelectedLayer = 'Top' | 'Bottom';
 
@@ -65,9 +66,27 @@ export function BoardForm({ board, onChange }: BoardFormProps) {
                 />
               </div>
             </div>
+            <div className={'row mb-3'}>
+              <div className={'col-6'}>
+                <label>Marker size</label>
+                <input
+                  type={'text'}
+                  {...register('markerSize', { valueAsNumber: true })}
+                  className={'form-control'}
+                />
+              </div>
+              <div className={'col-6'}>
+                <label>Marker color</label>
+                <ColorPicker name={'markerColor'} />
+              </div>
+            </div>
             <div className={'row'}>
               <div className={'col-12'}>
-                <div className={'border-bottom d-flex justify-content-between mb-3'}>
+                <div
+                  className={
+                    'border-bottom d-flex justify-content-between mb-3'
+                  }
+                >
                   <ul className="nav nav-tabs">
                     <li className="nav-item">
                       <button

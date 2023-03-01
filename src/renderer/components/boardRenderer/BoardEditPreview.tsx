@@ -1,7 +1,8 @@
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { Board, Component } from '../../../model/Board';
 import { Toolbar } from './Toolbar';
 import { BoardRenderer, Layout } from './BoardRenderer';
+import { ComponentMarkerProps } from './ComponentMarker';
 
 export interface BoardEditPreviewProps {
   board?: Board;
@@ -23,6 +24,15 @@ export function BoardEditPreview({ board }: BoardEditPreviewProps) {
     // TODO Return a better placeholder
     return null;
   }
+
+  const markerBuilder = useCallback((marker: ComponentMarkerProps) => {
+    const { x, y } = marker.component.position;
+    return {
+      ...marker,
+      message: [`X=${x} Y=${y}`],
+    };
+  }, []);
+
   return (
     <div className={'vh-100'}>
       <Toolbar
@@ -37,6 +47,7 @@ export function BoardEditPreview({ board }: BoardEditPreviewProps) {
         filter={filterFunc}
         layout={layout}
         showLabel={showLabels}
+        markerBuilder={markerBuilder}
         container={{ className: 'w-100 h-100' }}
       />
     </div>

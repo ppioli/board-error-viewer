@@ -1,60 +1,73 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { Board, Component } from '../../model/Board';
-import { useApiCall } from '../useApiCall';
-import { okResult } from '../../model/ApiResult';
-import { LogFileStatus } from './LogFileStatus';
 import { BoardRenderer } from '../components/boardRenderer/BoardRenderer';
+import { ComponentMarkerProps } from '../components/boardRenderer/ComponentMarker';
+import { LogEntryLine } from '../../model/LogEntry';
+import { useAppSelector } from '../store';
 
-export interface LogFileViewerProps {
-  board: Board;
-  logPath?: string;
-  className?: string;
-}
+export interface LogFileViewerProps {}
 
 export type LayerValue = 'TOP' | 'BOTTOM' | 'NONE';
+const updateEntry = (
+  dic: Record<string, LogEntryLine[]>,
+  key: string,
+  logEntry: LogEntryLine
+) => {
+  if (dic[key] === undefined) {
+    dic[key] = [];
+  }
+  dic[key].push(logEntry);
+};
+export function LogFileViewer() {
+  const log = useAppSelector((state) => state.logFile.currentLog);
 
-export function LogFileViewer({
-  board,
-  logPath,
-}: LogFileViewerProps) {
-  const call = useCallback(() => {
-    if (!logPath) {
-      return Promise.resolve(okResult(null));
+  const logByComponentId = useMemo(() => {
+    const dic: Record<string, LogEntryLine[]> = {};
+    if (!log) {
+      return dic;
     }
-    return window.electron.fileApi.openReport(logPath);
-  }, [logPath]);
-  const {
-    result: log,
-    error,
-    loading,
-  } = useApiCall({
-    call,
-  });
+    log.lines.forEach((s) => {
+      updateEntry(dic, s.id, s);
+      if (s.testPointA) {
+        updateEntry(dic, 'TP' + s.testPointA, s);
+      }
+      if (s.testPointB) {
+        updateEntry(dic, 'TP' + s.testPointB, s);
+      }
+    });
+
+    return dic;
+  }, [log]);
 
   const filterFunc = useCallback(
     (component: Component) => {
-      if (!log?.entry) {
-        return false;
+      return logByComponentId[component.id] !== undefined;
+    },
+    [logByComponentId]
+  );
+
+  const markerBuilder = useCallback(
+    (marker: ComponentMarkerProps) => {
+      const error = logByComponentId[marker.component.id];
+      if (!error) {
+        return marker;
       }
-      return log.entry.errors.filter((c) => c.id === component.id).length > 0;
+      return {
+        ...marker,
+        message: error,
+      };
     },
     [log]
   );
 
-
-  if (loading) {
-    return null;
-  }
-
   return (
-      <div className={'d-flex flex-column w-100 h-100'}>
-        <LogFileStatus error={error} log={log} />
-        <BoardRenderer
-          board={board}
-          filter={filterFunc}
-          showLabel={true}
-          container={{ className: 'd-flex flex-grow h-100 w-100' }}
-        />
-      </div>
+    <div className={'d-flex flex-column w-100 h-100'}>
+      <BoardRenderer
+        filter={filterFunc}
+        showLabel={true}
+        markerBuilder={markerBuilder}
+        container={{ className: 'd-flex flex-grow h-100 w-100' }}
+      />
+    </div>
   );
 }

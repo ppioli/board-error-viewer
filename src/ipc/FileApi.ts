@@ -1,9 +1,9 @@
 import { ipcRenderer } from 'electron';
 import { Board } from 'model/Board';
-import { LogFileParseResult } from '../model/LogFileParseResult';
 import { LogFile } from '../model/LogFile';
 import { ApiResult } from '../model/ApiResult';
 import { Config } from '../model/Config';
+import { LogEntry } from '../model/LogEntry';
 
 export enum FileApiChannels {
   WatchStart = 'watch-start',
@@ -19,11 +19,11 @@ export enum FileApiChannels {
 export interface FileApi {
   watchStart(): Promise<ApiResult<Config>>;
 
-  watchEnd(): void;
+  watchEnd(): Promise<ApiResult<boolean>>;
 
   onReportPickup(callback: (event: any, result: LogFile) => void): void;
 
-  openReport(path: string): Promise<ApiResult<LogFileParseResult>>;
+  openReport(path: string): Promise<ApiResult<LogEntry>>;
 
   boardSave(board: Board): Promise<ApiResult<string>>;
 
@@ -36,7 +36,7 @@ export interface FileApi {
 
 export const fileApiHandler: FileApi = {
   watchStart: () => ipcRenderer.invoke(FileApiChannels.WatchStart),
-  watchEnd: () => ipcRenderer.send(FileApiChannels.WatchStop),
+  watchEnd: () => ipcRenderer.invoke(FileApiChannels.WatchStop),
   onReportPickup: (callback: (event: any, result: LogFile) => void) => {
     ipcRenderer.on(FileApiChannels.ReportPickUp, callback);
   },
@@ -46,7 +46,7 @@ export const fileApiHandler: FileApi = {
   boardOpen(path) {
     return ipcRenderer.invoke(FileApiChannels.BoardOpen, path);
   },
-  openReport(path: string): Promise<ApiResult<LogFileParseResult>> {
+  openReport(path: string): Promise<ApiResult<LogEntry>> {
     return ipcRenderer.invoke(FileApiChannels.ReportOpen, path);
   },
   reportOpenFromFile: () =>

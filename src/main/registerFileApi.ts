@@ -4,11 +4,14 @@ import { FileApiChannels } from '../ipc/FileApi';
 import { Board } from 'model/Board';
 import fs from 'fs/promises';
 import { parseLog } from './logParser';
-import { LogFileParseResult } from '../model/LogFileParseResult';
 import { LogFile } from '../model/LogFile';
 import { default as libpath } from 'path';
 import { readConfigFile, updateRecentBoards } from './registerConfigApi';
-import { apiErrorResult, clientErrorResult, okResult } from '../model/ApiResult';
+import {
+  apiErrorResult,
+  clientErrorResult,
+  okResult,
+} from '../model/ApiResult';
 import logger from './logger';
 
 // File change watcher
@@ -23,14 +26,15 @@ const startWatcher = async () => {
       await stopWatcher();
     }
     const config = await readConfigFile();
+    logger.info('Watch started: ', config);
     const { watchDir, extension } = config;
     if (!watchDir) {
-      return clientErrorResult("")
+      return clientErrorResult('');
     }
     _watcher = watch(watchDir, {
       ignored: /(^|[\/\\])\../, // ignore dotfiles
       persistent: true,
-      ignoreInitial: true,
+      ignoreInitial: !(config.persistent ?? false),
     });
     //Add event listeners.
     _watcher.on('add', async (path, stats) => {
@@ -38,7 +42,7 @@ const startWatcher = async () => {
         return;
       }
       const file: LogFile = {
-        date: stats?.birthtime,
+        date: stats?.birthtime.toISOString(),
         path,
         fileName: libpath.basename(path),
       };
@@ -58,11 +62,7 @@ const reportOpen = async (path: string) => {
       encoding: encoding,
     })) as any as string;
     lines = lines.replaceAll('\r\n', '\n');
-    const result: LogFileParseResult = {
-      path: path,
-    };
-    result.entry = parseLog(lines);
-    return okResult(result);
+    return okResult(parseLog(lines));
   } catch (error: any) {
     return apiErrorResult(error);
   }
@@ -75,12 +75,13 @@ const stopWatcher = async () => {
   await _watcher.close().then(() => {
     _watcher = null;
   });
+  return okResult(true);
 };
 
 export const registerFileApi = (window: BrowserWindow) => {
   _window = window;
-  ipcMain.handle(FileApiChannels.WatchStart, () => startWatcher());
-  ipcMain.on(FileApiChannels.WatchStop, stopWatcher);
+  ipcMain.handle(FileApiChannels.WatchStart, startWatcher);
+  ipcMain.handle(FileApiChannels.WatchStop, stopWatcher);
   ipcMain.handle(FileApiChannels.BoardSave, async (event, board: Board) => {
     try {
       let { canceled, filePath } = await dialog.showSaveDialog(window, {
@@ -111,12 +112,17 @@ export const registerFileApi = (window: BrowserWindow) => {
         .readFile(path, { encoding: 'utf8' })
         .then((s) => JSON.parse(s) as Board);
       await updateRecentBoards({ path, name: board.name }, false);
+      // fill in some values that might be missing
+      board.markerColor = board.markerColor ?? '#ff0000';
+      board.markerSize = board.markerSize ?? 10;
       return okResult(board);
     } catch (error: any) {
-      console.log(error.stac)
+      console.log(error.stac);
       if (error.code === 'ENOENT') {
         await updateRecentBoards({ path, name: null }, false);
-        return clientErrorResult("The selected board no longer exists (file moved or deleted?)")
+        return clientErrorResult(
+          'The selected board no longer exists (file moved or deleted?)'
+        );
       }
       return apiErrorResult(error);
     }
@@ -125,7 +131,7 @@ export const registerFileApi = (window: BrowserWindow) => {
     reportOpen(path)
   );
   ipcMain.on(FileApiChannels.ReportOpenFromFile, async () => {
-    logger.info("Called open log file")
+    logger.info('Called open log file');
     const selection = await dialog.showOpenDialog(_window!, {
       title: 'Select a log file',
     });
@@ -135,11 +141,11 @@ export const registerFileApi = (window: BrowserWindow) => {
     const path = selection.filePaths[0];
     const stats = await fs.stat(path);
     const file: LogFile = {
-      date: stats?.birthtime,
+      date: stats?.birthtime.toISOString(),
       path,
       fileName: libpath.basename(path),
     };
-    logger.info(file)
+    logger.info(file);
     _window?.webContents.send(FileApiChannels.ReportPickUp, file);
   });
   ipcMain.handle(FileApiChannels.DirectoryPicker, () => {

@@ -3,25 +3,28 @@ import { Board, Component } from '../../../model/Board';
 import { BoardPlaceholder } from '../../boardEdit/BoardPlaceholder';
 import classNames from 'classnames';
 import { HTMLProps } from 'react';
+import { ComponentMarkerProps } from './ComponentMarker';
+import { useAppSelector } from '../../store';
 
 export interface BoardRendererProps {
-  board: Board;
   layout?: Layout;
   showLabel?: boolean;
   container?: HTMLProps<HTMLDivElement>;
   filter?: (component: Component) => boolean;
+  markerBuilder?: (marker: ComponentMarkerProps) => ComponentMarkerProps;
 }
 
 export type Layout = 'TOP' | 'BOTTOM' | 'VERTICAL' | 'HORIZONTAL';
 
 export function BoardRenderer({
-  board,
   filter,
   layout,
   showLabel = false,
+  markerBuilder,
   container = {},
 }: BoardRendererProps) {
   // TODO Handle id repetition
+  const { board, status, error } = useAppSelector((state) => state.board);
   const { layerTop, layerBottom } = board ?? {};
   return (
     <div {...container}>
@@ -35,6 +38,7 @@ export function BoardRenderer({
           {layerTop ? (
             <LayerRenderer
               title={'Layer Top'}
+              markerBuilder={markerBuilder}
               layer={layerTop}
               filter={filter}
               showLabel={showLabel}
@@ -47,6 +51,7 @@ export function BoardRenderer({
           <div style={{ flex: 1 }} className={'p-3 border border-dark'}>
             <LayerRenderer
               title={'Layer bottom'}
+              markerBuilder={markerBuilder}
               layer={layerBottom}
               filter={filter}
               showLabel={showLabel}

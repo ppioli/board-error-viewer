@@ -6,6 +6,8 @@ const lineDefinition: LineDefinition = [
   { start: 122, end: 130 },
   { start: 133, end: 141 },
   { start: 144, end: 152 },
+  { start: 42, end: 48 },
+  { start: 48, end: 54 },
 ];
 function splitLines(data: string) {
   return data.split('\n').filter((l) => l.length > 0);
@@ -20,25 +22,27 @@ export function parseLog(data: string) {
 
   const result: LogEntry = {
     status: headerLines[0],
-    model: headerLines[2].substring(headerLines[2].indexOf(':')),
-    date: headerLines[3].substring(headerLines[3].indexOf(':')),
-    errors: [],
+    model: headerLines[2].substring(headerLines[2].indexOf(':') + 1),
+    date: headerLines[3].substring(headerLines[3].indexOf(':') + 1),
+    lines: [],
   };
 
   const bodyLines = splitLines(body);
   const parser = new LineSplitter(bodyLines, lineDefinition);
 
   while (parser.hasNext()) {
-    const [id, code, valueA, valueB, valueC] = parser.parseNext();
-    result.errors.push({
+    const [id, code, valueA, valueB, valueC, testPointA, testPointB] =
+      parser.parseNext();
+    result.lines.push({
       code,
       id,
       valueA,
       valueB,
       valueC,
+      testPointA,
+      testPointB,
     });
   }
-
   return result;
 }
 
@@ -46,7 +50,6 @@ export class LineSplitter {
   private lines: string[];
   private definition: LineDefinition;
   private ix: number = 0;
-
   constructor(lines: string[], definition: LineDefinition) {
     this.lines = lines;
     this.definition = definition;
@@ -57,18 +60,20 @@ export class LineSplitter {
   }
 
   hasNext() {
-    return this.ix + 1 < this.lines.length;
+    return this.ix < this.lines.length;
   }
 
   parseNext() {
-    return parseLine(this.lines[++this.ix], this.definition);
+    return parseLine(this.lines[this.ix++], this.definition);
   }
 }
 
 export function parseLine(line: string, definition: LineDefinition) {
   const result: string[] = [];
   definition.forEach(({ start, end }) => {
-    result.push(line.substring(start, end).trim());
+    const substr = line.substring(start, end);
+    console.log(`"${substr}"`);
+    result.push(substr.trim());
   });
   return result;
 }

@@ -3,34 +3,22 @@ import { useApiCall } from '../useApiCall';
 import { ErrorPage } from '../ErrorPage';
 import { OpenBoardButton } from '../OpenBoardButton';
 import { RecentBoardItem } from './RecentBoardItem';
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 import { useToast } from '../toast/ToastContext';
+import { useAppDispatch, useAppSelector } from '../store';
+import { loadRecentBoardsThunk, selectRecentBoards } from './recentBoardSlice';
 
 export function RecentBoards() {
   const toast = useToast();
-  const {
-    result: recentBoards,
-    setResult: setRecentBoards,
-    loading,
-    error,
-  } = useApiCall({
-    call: window.electron.configApi.getRecentBoards,
-  });
 
-  const onRemove = useCallback((path: string) => {
-    window.electron.configApi
-      .removeRecentBoard(path)
-      .then(({ result, error }) => {
-        if (error !== null) {
-          toast.showError(error);
-        } else {
-          setRecentBoards(recentBoards?.filter((s) => s.path == result) ?? []);
-        }
-      });
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    dispatch(loadRecentBoardsThunk());
   }, []);
-  if (loading) {
-    return null;
-  }
+
+  const recentBoards = useAppSelector(selectRecentBoards);
+  const error = useAppSelector((state) => state.recentBoards.error);
   if (!recentBoards) {
     return <ErrorPage error={error!} />;
   }
@@ -54,7 +42,7 @@ export function RecentBoards() {
           </div>
         )}
         {recentBoards.map((rb, ix) => (
-          <RecentBoardItem key={ix} board={rb} removeBoard={onRemove} />
+          <RecentBoardItem key={ix} board={rb} />
         ))}
       </div>
       <div className={'d-flex flex-row-reverse'}>
@@ -69,4 +57,3 @@ export function RecentBoards() {
     </div>
   );
 }
-

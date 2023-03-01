@@ -2,16 +2,17 @@ import { Component, Layer } from '../../../model/Board';
 import { useCallback, useMemo, useRef } from 'react';
 import { useSize } from '../../useSize';
 import QuickPinchZoom, { make3dTransformValue } from 'react-quick-pinch-zoom';
-import { ComponentMarker } from './ComponentMarker';
+import { ComponentMarker, ComponentMarkerProps } from './ComponentMarker';
 import _ from 'lodash';
 import classNames from 'classnames';
+import { useAppDispatch, useAppSelector } from '../../store';
 
 export interface BoardRendererProps {
   title: string;
   layer: Layer;
-  markerSize?: number;
   filter?: (component: Component) => boolean;
   showLabel?: boolean;
+  markerBuilder?: (markerProps: ComponentMarkerProps) => ComponentMarkerProps;
 }
 
 export function LayerRenderer({
@@ -19,6 +20,7 @@ export function LayerRenderer({
   title,
   filter,
   showLabel = false,
+  markerBuilder = (p) => p,
 }: BoardRendererProps) {
   console.log(layer);
   const {
@@ -30,6 +32,7 @@ export function LayerRenderer({
     flip: { x: flipX, y: flipY },
   } = layer;
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const { board } = useAppSelector((state) => state.board);
   // if we get a list of errors, we will display only components with errors
   let height = 100,
     width = 100;
@@ -70,6 +73,12 @@ export function LayerRenderer({
 
     return components.filter(filter);
   }, [components, filter]);
+
+  if (board === null) {
+    return null;
+  }
+  const { markerSize, markerColor } = board || {};
+
   return (
     <QuickPinchZoom
       wheelScaleFactor={500}
@@ -150,16 +159,18 @@ export function LayerRenderer({
             }}
           >
             {filteredComponents.map((c, ix) => {
-              return (
-                <ComponentMarker
-                  component={c}
-                  naturalScale={naturalScale}
-                  scale={scale}
-                  flipX={flipX}
-                  flipY={flipY}
-                  showLabel={showLabel}
-                />
-              );
+              let defaultProps = {
+                component: c,
+                color: markerColor,
+                markerSize: markerSize,
+                naturalScale: naturalScale,
+                scale: scale,
+                flipX: flipX,
+                flipY: flipY,
+                showLabel: showLabel,
+              };
+
+              return <ComponentMarker {...markerBuilder(defaultProps)} />;
             })}
           </div>
         </div>

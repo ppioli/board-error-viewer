@@ -26,4 +26,6 @@ export const boardSchema: SchemaOf<Board> = object().shape({
   layerTop: layerSchema.required(),
   layerBottom: layerSchema.nullable(),
   name: string().required(),
+  markerSize: number().required(),
+  markerColor: string().required(),
 });

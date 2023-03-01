@@ -1,5 +1,7 @@
 import { Component, Vector } from '../../../model/Board';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
+import Color from 'colorjs.io';
+import { LogEntryLine } from '../../../model/LogEntry';
 
 const TEXT_BOX_SIZE = 100;
 const MARKER_SIZE = 10;
@@ -10,15 +12,19 @@ export interface ComponentMarkerProps {
   scale: Vector;
   flipX: number;
   flipY: number;
+  markerSize: number;
+  color: string;
   showLabel?: boolean;
-  markerSize?: number;
   textBoxSize?: number;
-  message?: string;
-  color?: string;
+  message?: string[] | LogEntryLine[];
 }
 
-const COLOR_ACTIVE = '#ffffff';
-const COLOR_INACTIVE = '#ff0000';
+const normalizeMessage = (message: string | string[]) => {
+  if (Array.isArray(message)) {
+    return message;
+  }
+  return [message];
+};
 
 export function ComponentMarker({
   component,
@@ -32,9 +38,24 @@ export function ComponentMarker({
   markerSize = MARKER_SIZE,
   textBoxSize = TEXT_BOX_SIZE,
 }: ComponentMarkerProps) {
-  console.log(flipX, flipX);
   const [active, setActive] = useState(false);
-  const renderColor = color ?? (active ? COLOR_ACTIVE : COLOR_INACTIVE);
+
+  const [colorAlpha, colorActive, colorActiveAlpha] = useMemo(() => {
+    const bgColor = new Color(color);
+    bgColor.alpha = 0.6;
+
+    const colorActive = new Color(color);
+    colorActive.lighten(0.4);
+
+    const colorActiveAlpha = new Color(color);
+    colorActiveAlpha.lighten(0.4);
+    colorActiveAlpha.alpha = 0.6;
+    return [
+      bgColor.toString(),
+      colorActive.toString(),
+      colorActiveAlpha.toString(),
+    ];
+  }, [color]);
   return (
     <div
       key={component.id}
@@ -42,10 +63,10 @@ export function ComponentMarker({
         position: 'absolute',
         left: component.position.x * naturalScale * scale.x,
         top: component.position.y * naturalScale * scale.y,
-        zIndex: active? 999999 : undefined,
+        zIndex: active ? 999999 : undefined,
       }}
     >
-      <div style={{ position: 'relative'}}>
+      <div style={{ position: 'relative' }}>
         <div
           onMouseOver={() => setActive(true)}
           onMouseOut={() => setActive(false)}
@@ -55,10 +76,9 @@ export function ComponentMarker({
             position: 'absolute',
             borderWidth: 1,
             borderStyle: 'solid',
-            borderColor: renderColor,
+            borderColor: active ? colorActive : color,
             borderRadius: markerSize,
-            // TODO this will break depending on the color format. Probably should find a better way.
-            backgroundColor: renderColor + '88',
+            backgroundColor: active ? colorActiveAlpha : colorAlpha,
             top: -(markerSize / 2),
             left: -(markerSize / 2),
           }}
@@ -69,21 +89,55 @@ export function ComponentMarker({
             style={{
               pointerEvents: 'none',
               transform: `scaleX(${flipX}) scaleY(${flipY}`,
-              color: renderColor,
-              textShadow: '1px 1px 1px #000000',
+              color: active ? colorActive : color,
+              textShadow: '0px 0px 5px #000000',
               position: 'absolute',
               top: markerSize / 2 + 2,
               left: -(textBoxSize / 2),
               maxWidth: textBoxSize,
               width: textBoxSize,
-              fontSize: 5,
+              fontSize: 12,
             }}
           >
-            <div>{`${component.id}`}</div>
-            {message && <div>{message}</div>}
+            <div
+              style={{
+                backgroundColor: 'rgba(0,0,0,0.5)',
+                border: '1px solid red',
+              }}
+            >
+              <div>{`${component.id}`}</div>
+              {message && <MarkerMessage message={message} />}
+            </div>
           </div>
         )}
       </div>
     </div>
+  );
+}
+
+export function MarkerMessage({
+  message,
+}: {
+  message: string[] | LogEntryLine[];
+}) {
+  if (message.length == 0) {
+    return null;
+  }
+  if (typeof message[0] === 'string') {
+    return (
+      <>
+        {message.map((m) => (
+          <div>{m as string}</div>
+        ))}
+      </>
+    );
+  }
+  const codes = message.map((m) => (m as LogEntryLine).code);
+  return (
+    <>
+      {[...new Set(codes)].map((c) => (
+        <div>**{c}**</div>
+      ))}
+    </>
   );
 }
