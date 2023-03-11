@@ -3,12 +3,10 @@ import { Board, Component } from '../../../model/Board';
 import { Toolbar } from './Toolbar';
 import { BoardRenderer, Layout } from './BoardRenderer';
 import { ComponentMarkerProps } from './ComponentMarker';
+import { useAppSelector } from '../../store';
 
-export interface BoardEditPreviewProps {
-  board?: Board;
-}
 
-export function BoardEditPreview({ board }: BoardEditPreviewProps) {
+export function BoardEditPreview() {
   const [layout, setLayout] = useState<Layout>('HORIZONTAL');
   const [filter, setFilter] = useState<string>('');
   const [showLabels, setShowLabels] = useState<boolean>(false);
@@ -20,16 +18,11 @@ export function BoardEditPreview({ board }: BoardEditPreviewProps) {
     return (comp: Component) => comp.id.includes(filter);
   }, [filter]);
 
-  if (!board) {
-    // TODO Return a better placeholder
-    return null;
-  }
 
   const markerBuilder = useCallback((marker: ComponentMarkerProps) => {
-    const { x, y } = marker.component.position;
     return {
       ...marker,
-      message: [`X=${x} Y=${y}`],
+      message: [`Palceholder`],
     };
   }, []);
 
@@ -43,7 +36,6 @@ export function BoardEditPreview({ board }: BoardEditPreviewProps) {
         layout={layout}
       />
       <BoardRenderer
-        board={board}
         filter={filterFunc}
         layout={layout}
         showLabel={showLabels}

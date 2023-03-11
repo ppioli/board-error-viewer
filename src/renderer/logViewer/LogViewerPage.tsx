@@ -25,7 +25,7 @@ export function LogViewerPage() {
           </div>
         </div>
         <div className={'w-75'}>
-          <LogFileViewer board={board} />
+          <LogFileViewer />
         </div>
       </div>
     </div>

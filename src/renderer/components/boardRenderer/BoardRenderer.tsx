@@ -1,5 +1,5 @@
 import { LayerRenderer } from './LayerRenderer';
-import { Board, Component } from '../../../model/Board';
+import { Component } from '../../../model/Board';
 import { BoardPlaceholder } from '../../boardEdit/BoardPlaceholder';
 import classNames from 'classnames';
 import { HTMLProps } from 'react';
@@ -24,8 +24,6 @@ export function BoardRenderer({
   container = {},
 }: BoardRendererProps) {
   // TODO Handle id repetition
-  const { board, status, error } = useAppSelector((state) => state.board);
-  const { layerTop, layerBottom } = board ?? {};
   return (
     <div {...container}>
       <div
@@ -35,29 +33,21 @@ export function BoardRenderer({
         })}
       >
         <div style={{ flex: 1 }} className={'p-3 border border-dark'}>
-          {layerTop ? (
             <LayerRenderer
               title={'Layer Top'}
               markerBuilder={markerBuilder}
-              layer={layerTop}
               filter={filter}
               showLabel={showLabel}
             />
-          ) : (
-            <BoardPlaceholder />
-          )}
         </div>
-        {layerBottom && (
           <div style={{ flex: 1 }} className={'p-3 border border-dark'}>
             <LayerRenderer
               title={'Layer bottom'}
               markerBuilder={markerBuilder}
-              layer={layerBottom}
               filter={filter}
               showLabel={showLabel}
             />
           </div>
-        )}
       </div>
     </div>
   );

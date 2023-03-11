@@ -14,7 +14,7 @@ export function RecentBoardItem({ board }: RecentBoardItemProps) {
   const dispatch = useAppDispatch();
   const openBoard = (path: string) => {
     dispatch(loadBoardThunk(path));
-    navigate('/analysis');
+    navigate('/edit');
   };
 
   const handleMouseOver: MouseEventHandler<HTMLDivElement> = (event) => {

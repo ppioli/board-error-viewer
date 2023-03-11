@@ -1,28 +1,24 @@
-import { Component, Layer } from '../../../model/Board';
+import { Board, Component, defaultLayer, Layer } from '../../../model/Board';
 import { useCallback, useMemo, useRef } from 'react';
 import { useSize } from '../../useSize';
 import QuickPinchZoom, { make3dTransformValue } from 'react-quick-pinch-zoom';
 import { ComponentMarker, ComponentMarkerProps } from './ComponentMarker';
-import _ from 'lodash';
 import classNames from 'classnames';
 import { useAppDispatch, useAppSelector } from '../../store';
+import { selectDimension, selectLayerComponentsIds, selectTopLayer } from '../../boardEdit/boardSlice';
 
 export interface BoardRendererProps {
   title: string;
-  layer: Layer;
   filter?: (component: Component) => boolean;
   showLabel?: boolean;
   markerBuilder?: (markerProps: ComponentMarkerProps) => ComponentMarkerProps;
 }
 
 export function LayerRenderer({
-  layer,
   title,
   filter,
   showLabel = false,
-  markerBuilder = (p) => p,
 }: BoardRendererProps) {
-  console.log(layer);
   const {
     image,
     offset,
@@ -30,24 +26,10 @@ export function LayerRenderer({
     scale,
     rotation,
     flip: { x: flipX, y: flipY },
-  } = layer;
+  } = useAppSelector(selectTopLayer) ?? defaultLayer();
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const { board } = useAppSelector((state) => state.board);
   // if we get a list of errors, we will display only components with errors
-  let height = 100,
-    width = 100;
-  if (image) {
-    width = image.width;
-    height = image.height;
-  } else {
-    const maxX = _.maxBy(components, (c) => c.position.x)?.position.x;
-    const maxY = _.maxBy(components, (c) => c.position.y)?.position.y;
-    // TODO breaks when deleting an image when there are components
-    if (maxX && maxY) {
-      width = maxX;
-      height = maxY;
-    }
-  }
+  const [width, height] = useAppSelector(selectDimension)
   const {
     offsetX: naturalOffsetX,
     offsetY: naturalOffsetY,
@@ -73,11 +55,6 @@ export function LayerRenderer({
 
     return components.filter(filter);
   }, [components, filter]);
-
-  if (board === null) {
-    return null;
-  }
-  const { markerSize, markerColor } = board || {};
 
   return (
     <QuickPinchZoom
@@ -158,23 +135,35 @@ export function LayerRenderer({
               left: offset.x,
             }}
           >
-            {filteredComponents.map((c, ix) => {
-              let defaultProps = {
-                component: c,
-                color: markerColor,
-                markerSize: markerSize,
-                naturalScale: naturalScale,
-                scale: scale,
-                flipX: flipX,
-                flipY: flipY,
-                showLabel: showLabel,
-              };
-
-              return <ComponentMarker {...markerBuilder(defaultProps)} />;
-            })}
+            <ComponentMarkerLayer scale={scale} flipX={flipX} flipY={flipY} showLable={showLabel} naturalScale={naturalScale} />
           </div>
         </div>
       </div>
     </QuickPinchZoom>
   );
+}
+
+
+// todo add types
+function ComponentMarkerLayer({scale, flipX, flipY, showLabel, naturalScale}: any) {
+
+  const componentsIds = useAppSelector(selectLayerComponentsIds);
+
+  const markers = componentsIds.map((c, ix) => {
+    let defaultProps = {
+      naturalScale: naturalScale,
+      componentId: c,
+      scale: scale,
+      flipX: flipX,
+      flipY: flipY,
+      showLabel: showLabel,
+    };
+
+    return <ComponentMarker color={'#ff0000'} key={ix} {...defaultProps} markerSize={10} />;
+
+  })
+
+  return <>
+    {markers}
+  </>
 }

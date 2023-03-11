@@ -1,13 +1,15 @@
-import { Component, Vector } from '../../../model/Board';
+import { Vector } from '../../../model/Board';
 import { useMemo, useState } from 'react';
 import Color from 'colorjs.io';
 import { LogEntryLine } from '../../../model/LogEntry';
+import { useAppSelector } from '../../store';
+import { selectLayerComponentById } from '../../boardEdit/boardSlice';
 
 const TEXT_BOX_SIZE = 100;
 const MARKER_SIZE = 10;
 
 export interface ComponentMarkerProps {
-  component: Component;
+  componentId: string;
   naturalScale: number;
   scale: Vector;
   flipX: number;
@@ -27,7 +29,7 @@ const normalizeMessage = (message: string | string[]) => {
 };
 
 export function ComponentMarker({
-  component,
+  componentId,
   naturalScale,
   scale,
   message,
@@ -39,7 +41,7 @@ export function ComponentMarker({
   textBoxSize = TEXT_BOX_SIZE,
 }: ComponentMarkerProps) {
   const [active, setActive] = useState(false);
-
+  const component = useAppSelector( state => selectLayerComponentById(state, componentId))
   const [colorAlpha, colorActive, colorActiveAlpha] = useMemo(() => {
     const bgColor = new Color(color);
     bgColor.alpha = 0.6;

@@ -10,33 +10,27 @@ import { boardSchema } from '../../model/schema';
 import { ExcelImporter } from './ExcelImporter';
 import { useTranslation } from 'react-i18next';
 import { ColorPicker } from '../components/ColorPicker';
+import { useReduxForm } from '../Test';
+import { updateBoardProp } from './boardSlice';
+import { useAppSelector } from '../store';
 
 type SelectedLayer = 'Top' | 'Bottom';
 
 export interface BoardFormProps {
-  board: Board;
-  onChange: (board: Board) => void;
 }
 
-export function BoardForm({ board, onChange }: BoardFormProps) {
+export function BoardForm() {
+  const board = useAppSelector(state => state.board)
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const formMethods = useForm<Board>({
-    defaultValues: board,
+  const formMethods = useReduxForm<Board>({
     resolver: yupResolver(boardSchema),
     reValidateMode: 'onChange',
+    rootSelector: state => state.board.board,
+    changeAction: updateBoardProp
   });
-  const { register, handleSubmit, watch, reset } = formMethods;
+  const { register, handleSubmit, reset } = formMethods;
   const [selectedTab, setSelectedTab] = useState<SelectedLayer>('Top');
-  useEffect(() => {
-    const subscription = watch((value) => {
-      if (value) {
-        onChange(value as Board);
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, [watch]);
 
   const onSubmit = (board: Board) => {
     window.electron.fileApi.boardSave(board).then(({ result: path, error }) => {
@@ -48,11 +42,16 @@ export function BoardForm({ board, onChange }: BoardFormProps) {
     });
   };
 
+
+  useEffect( () => {
+   reset(board as any)
+  }, [])
+
   const onExcelLoad = useCallback((board: Board) => {
     reset(board);
   }, []);
   return (
-    <FormProvider {...formMethods}>
+    <FormProvider {...(formMethods as any)}>
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className={'card vh-100'}>
           <div className={'card-body d-flex flex-column'}>
